@@ -3,7 +3,6 @@
 
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
 /*
@@ -37,7 +36,7 @@ typedef struct heap{
 ** Comparador se utiliza para comparar dos elementos.
 ** Devuelve el puntero a un heap vacío o NULL en caso de error.
 */
-void* crear_heap();
+heap_t* crear_heap(heap_comparador comparador, heap_liberar_elemento destructor);
 
 /*
  * Inserta un elemento en el heap.
