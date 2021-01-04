@@ -38,10 +38,11 @@ heap_t* crear_heap(heap_comparador comparador, heap_liberar_elemento destructor)
  * El heap admite elementos con valores repetidos.
  */
 int heap_insertar(heap_t* heap, void* elemento);
-
-void sift_up(){
-
-}
+/*
+** Dado un elemento en el heap, lo subirá si es menor a su padre.
+** En caso del elemento ser el menor del heap terminará en la raiz de este.
+*/
+void sift_up(heap_t* heap, int posicion);
 /*
  * Quita del heap la raiz y lo deja como un heap valido.
  * Adicionalmente, si encuentra el elemento, invoca el destructor con
