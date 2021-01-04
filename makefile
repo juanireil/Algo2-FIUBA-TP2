@@ -2,15 +2,15 @@ CC = gcc
 CFLAGS = -g -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O0
 FLAGS_VALGRIND = --leak-check=full --track-origins=yes --show-reachable=yes 
 
-pruebas_hash: pruebas.c hash.c pa2mm.h
-	$(CC) pruebas.c hash.c -o hash $(CFLAGS)
+pruebas_heap: pruebas.c heap.c pa2mm.h
+	$(CC) pruebas.c heap.c -o heap $(CFLAGS)
 
 .PHONY : clean
 clean : 
 	-rm abb
 
-debug_hash : pruebas_hash
-	gdb ./hash
+debug_heap : pruebas_heap
+	gdb ./heap
 
-valgrind_hash: pruebas_hash
-	valgrind $(FLAGS_VALGRIND) ./hash
+valgrind_heap: pruebas_heap
+	valgrind $(FLAGS_VALGRIND) ./heap

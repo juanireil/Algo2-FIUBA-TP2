@@ -18,15 +18,9 @@ typedef int (*heap_comparador)(void*, void*);
  * el elemento.
  */
 typedef void (*heap_liberar_elemento)(void*);
-
-typedef struct nodo_heap {
-  void* elemento;
-  struct nodo_heap* izquierda;
-  struct nodo_heap* derecha;
-} nodo_heap_t;
-
 typedef struct heap{
-  nodo_heap_t* nodo_heap;
+  void** vector;
+  int tope;
   heap_comparador comparador;
   heap_liberar_elemento destructor;
 } heap_t;
@@ -45,19 +39,22 @@ heap_t* crear_heap(heap_comparador comparador, heap_liberar_elemento destructor)
  */
 int heap_insertar(heap_t* heap, void* elemento);
 
+void sift_up(){
+
+}
 /*
  * Quita del heap la raiz y lo deja como un heap valido.
  * Adicionalmente, si encuentra el elemento, invoca el destructor con
  * dicho elemento.
  * Devuelve 0 si pudo eliminar el elemento o -1 en caso contrario.
  */
-int heap_borrar(heap_t* arbol, void* elemento);
+int heap_borrar(heap_t* heap, void* elemento);
 
 /*
  * Destruye el heap liberando la memoria reservada por el mismo.
  * Adicionalmente invoca el destructor con cada elemento presente en
  * el.
  */
-void heap_destruir(heap_t* arbol);
+void heap_destruir(heap_t* heap);
 
 #endif /* __HEAP_H__ */
