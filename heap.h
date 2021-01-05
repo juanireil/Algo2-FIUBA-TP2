@@ -45,11 +45,9 @@ int heap_insertar(heap_t* heap, void* elemento);
 void sift_up(heap_t* heap, int posicion);
 /*
  * Quita del heap la raiz y lo deja como un heap valido.
- * Adicionalmente, si encuentra el elemento, invoca el destructor con
- * dicho elemento.
- * Devuelve 0 si pudo eliminar el elemento o -1 en caso contrario.
+ * Devuelve el puntero al elemento eliminado o NULL.
  */
-int heap_borrar(heap_t* heap, void* elemento);
+void* heap_extraer_raiz(heap_t* heap);
 
 /*
  * Destruye el heap liberando la memoria reservada por el mismo.

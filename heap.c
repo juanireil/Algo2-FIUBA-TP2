@@ -24,37 +24,48 @@ int heap_insertar(heap_t* heap, void* elemento){
     if(!heap || !(*heap).comparador ){
         return NO_SE_PUDO_INSERTAR;
     }
-    void* aux = realloc((*heap).vector ,sizeof(sizeof(void*) * ((*heap).tope+1)));
+
+    void* aux = realloc((*heap).vector ,sizeof(void*) *(size_t)(heap->tope +1));
     if(!aux){
         return NO_SE_PUDO_INSERTAR;
     }
     (*heap).tope ++;
     (*heap).vector = aux;
-    sift_up((heap), (*heap).tope);
+    heap->vector[heap->tope -1] = elemento;
+
+    sift_up((heap), (*heap).tope -1);
     return SE_PUDO_INSERTAR; 
 }
-void intercambiar_posiciones(void* elemento_1, void* elemento_2){
-    void* aux = elemento_1;
-    elemento_1 = elemento_2;
-    elemento_2 = aux;
+void intercambiar_posiciones(void** vector, int hijo, int padre){
+    void* aux = vector[hijo];
+    vector[hijo] = vector[padre];
+    vector[padre] = aux;
 }
+
+int posicion_padre(int posicion_hijo){
+    if(posicion_hijo %2 == 0){
+        return (posicion_hijo-2)/2;
+    }
+    return (posicion_hijo-1)/2;
+}
+
 void sift_up(heap_t* heap, int posicion){
-    if(posicion == 1){
+    if(posicion == 0){
         return;
     }
-    if(posicion%2 == 0){
-        if((*heap).comparador((*heap).vector + posicion/2 -1, (*heap).vector +posicion-1) < 0){
-            intercambiar_posiciones((*heap).vector+ posicion/2 -1, (*heap).vector + posicion -1);
-            posicion = posicion/2;
-        }
+    int padre = posicion_padre(posicion);
+
+    if((*heap).comparador((*heap).vector[posicion], (*heap).vector[padre]) < 0){
+        intercambiar_posiciones((*heap).vector, posicion, padre);
+        sift_up(heap, padre);
     }
-    else{
-        if((*heap).comparador((*heap).vector + (posicion-1)/2 -1, (*heap).vector +posicion-1) < 0){
-            intercambiar_posiciones((*heap).vector+ (posicion-1)/2 -1, (*heap).vector + posicion -1);
-            posicion = (posicion-1)/2;
-        }
+}
+
+void* heap_extraer_raiz(heap_t* heap){
+    if(!heap || !(*heap).vector){
+        return NULL;
     }
-    sift_up(heap, posicion);
+    
 }
 
 void heap_destruir(heap_t* heap){
