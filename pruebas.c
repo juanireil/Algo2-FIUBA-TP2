@@ -76,12 +76,41 @@ void probar_heap_insertar(){
     pa2m_afirmar(*(*heap).vector == cosa_1, "Inserte varios elementos minimo ubicado correctamente.");
     heap_destruir(heap);
 }
+void probar_heap_extraer_raiz(){
+    heap_t* heap = NULL;
+    cosa* cosa_1 = crear_cosa(1);
+    cosa* cosa_2 = crear_cosa(2);
+    cosa* cosa_3 = crear_cosa(3);
+    cosa* cosa_4 = crear_cosa(4);
+    cosa* cosa_5 = crear_cosa(5);
+    cosa* cosa_6 = crear_cosa(6);
+    cosa* cosa_7 = crear_cosa(7);
+    cosa* cosa_8 = crear_cosa(8);
+    cosa* cosa_9 = crear_cosa(9);
 
+    heap = crear_heap(comparar_cosas, destructor_de_cosas);
+    pa2m_afirmar(heap_extraer_raiz(NULL) == NULL, "Heap invalido no existe raiz");
+    pa2m_afirmar(heap_extraer_raiz(heap) == NULL, "Heap vacio no existe raiz");
+    heap_insertar(heap, cosa_2);
+    heap_insertar(heap, cosa_5);
+    heap_insertar(heap, cosa_7);
+    heap_insertar(heap, cosa_9);
+    heap_insertar(heap, cosa_3);
+    heap_insertar(heap, cosa_1);
+    heap_insertar(heap,cosa_6);
+    heap_insertar(heap,cosa_8);
+    heap_insertar(heap,cosa_4);
+    pa2m_afirmar(heap_extraer_raiz(heap) == cosa_1, "Raiz eliminada correctamente");
+    pa2m_afirmar((*heap).vector[0] == cosa_2, "Nueva raiz es la correcta");
+    heap_destruir(heap);
+}
 int main(){
     pa2m_nuevo_grupo("PRUEBAS CREACION DE HEAP");
     probar_creacion_del_heap();
     pa2m_nuevo_grupo("PRUEBAS INSERCION DE ELEMENTOS");
     probar_heap_insertar();
+    pa2m_nuevo_grupo("PRUEBAS ELIMINACION DE RAIZ");
+    probar_heap_extraer_raiz();
     pa2m_mostrar_reporte();
     return 0;
 }

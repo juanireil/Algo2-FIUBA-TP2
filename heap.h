@@ -39,10 +39,16 @@ heap_t* crear_heap(heap_comparador comparador, heap_liberar_elemento destructor)
  */
 int heap_insertar(heap_t* heap, void* elemento);
 /*
-** Dado un elemento en el heap, lo subirá si es menor a su padre.
+** Dado un elemento en el heap, lo subirá mientras sea menor a su padre.
 ** En caso del elemento ser el menor del heap terminará en la raiz de este.
 */
 void sift_up(heap_t* heap, int posicion);
+/*
+** Dado un elemento en el heap, lo bajará mientras sea mayot a algun hijo.
+** Tomará su posicion el menor de sus hijos
+** En el caso extremo termino en el último nivel del arbol.
+*/
+void sift_down(heap_t* heap, int posicion);
 /*
  * Quita del heap la raiz y lo deja como un heap valido.
  * Devuelve el puntero al elemento eliminado o NULL.
