@@ -102,9 +102,10 @@ void probar_heap_extraer_raiz(){
     heap_insertar(heap,cosa_4);
     pa2m_afirmar(heap_extraer_raiz(heap) == cosa_1, "Raiz eliminada correctamente");
     pa2m_afirmar((*heap).vector[0] == cosa_2, "Nueva raiz es la correcta");
+    destruir_cosa(cosa_1);
     heap_destruir(heap);
 }
-int main(){
+int pruebas(){
     pa2m_nuevo_grupo("PRUEBAS CREACION DE HEAP");
     probar_creacion_del_heap();
     pa2m_nuevo_grupo("PRUEBAS INSERCION DE ELEMENTOS");

@@ -25,7 +25,7 @@ abb_t* arbol_crear(abb_comparador comparador, abb_liberar_elemento destructor){
     (*arbol).destructor = destructor;
     return arbol;
 }
-nodo_abb_t* crear_nodo(void* elemento){
+nodo_abb_t* crear_nodo_abb(void* elemento){
     nodo_abb_t* nodo;
 
     nodo = malloc(sizeof(nodo_abb_t));
@@ -58,7 +58,7 @@ void insertar (nodo_abb_t* nodo, nodo_abb_t* nodo_a_insertar, abb_comparador com
 int arbol_insertar(abb_t* arbol, void* elemento){
     nodo_abb_t* nodo;
     nodo_abb_t* nodo_a_insertar;
-    nodo_a_insertar = crear_nodo(elemento);
+    nodo_a_insertar = crear_nodo_abb(elemento);
 
     if(!arbol || !nodo_a_insertar){
         free(nodo_a_insertar);

@@ -4,11 +4,12 @@
 #include "abb.h"
 #include "lista.h"
 #include "heap.h"
+#include "batallas.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 
-const int MAX_NOMBRE = 50;
+#define MAX_NOMBRE 50
 
 typedef struct pokemon{
   char nombre[MAX_NOMBRE];
@@ -29,8 +30,23 @@ typedef struct gimnasio{
   char nombre[MAX_NOMBRE];
   int dificultad;
   int id_puntero_a_funcion;
-  lista_t* entrenadores //implementacion pila
+  lista_t* entrenadores; //implementacion pila
 }gimnasio_t;
 
+void cargar_gimnasios();
+
+void cargar_personaje();
+
+void jugar_aventura();
+
+void mostrar_menu_inicio();
+
+void mostrar_menu_gimnasio();
+
+void mostrar_menu_batalla();
+
+void mostrar_menu_victoria();
+
+void mostrar_menu_derrota();
 
 #endif /* __AVENTURA_POKEMON_H__ */

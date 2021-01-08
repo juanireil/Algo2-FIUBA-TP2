@@ -1,6 +1,8 @@
 #ifndef __BATALLAS_H__
 #define __BATALLAS_H__
 
+#include "aventura_pokemon.h"
+
 #define GANO_PRIMERO 1
 #define GANO_SEGUNDO -1
 
