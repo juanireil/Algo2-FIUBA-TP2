@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #define MAX_NOMBRE 50
-
+#define MAX_ARCHIVO 50
 typedef struct pokemon{
   char nombre[MAX_NOMBRE];
   int velocidad;
@@ -21,7 +21,7 @@ typedef struct pokemon{
 //decidir si uso las estructuras o punteros a estas
 typedef struct entrenador{
   char nombre[MAX_NOMBRE];
-  lista_t* medallas; //cola
+  int medallas;
   lista_t* equipo; //lista
   abb_t* pokemones;
 }entrenador_t;
@@ -35,9 +35,11 @@ typedef struct gimnasio{
 
 void cargar_gimnasios();
 
-void cargar_personaje();
+void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);
 
 void jugar_aventura();
+
+void simular_aventura();
 
 void mostrar_menu_inicio();
 

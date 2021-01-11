@@ -6,3 +6,6 @@ P;Onix;20;35;32
 E;Montañero Jose
 P;Zubat;10;12;8
 P;Geodude;12;12;15
+E;Campista Pedro
+P;Hitmonlee;17;67;12
+P;Spinarak;32;56;32

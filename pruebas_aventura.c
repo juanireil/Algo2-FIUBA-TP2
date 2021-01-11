@@ -21,13 +21,30 @@ void probar_funciones_batalla(){
     pa2m_afirmar(funcion_batalla_2(pkm_1, pkm_2) == 1, "Funcion batalla 2 devolvió correctamente");
     pa2m_afirmar(funcion_batalla_3(pkm_1, pkm_2) == 1, "Funcion batalla 3 devolvió correctamente");
     pa2m_afirmar(funcion_batalla_4(pkm_1, pkm_2) == 1, "Funcion batalla 4 devolvió correctamente");
-    pa2m_afirmar(funcion_batalla_5(pkm_1, pkm_2) == 1, "Funcion batalla 5 devolvió correctamente"); 
+    pa2m_afirmar(funcion_batalla_5(pkm_1, pkm_2) == 1, "Funcion batalla 5 devolvió correctamente");
+
+    free(pkm_1);
+    free(pkm_2);
     
+}
+
+void probar_cargar_personaje(){
+    entrenador_t* personaje = NULL;
+    pa2m_afirmar((personaje = cargar_personaje("gimnasio_brock.txt")) == NULL, "Archivo erroneo no se crea el personaje");
+    pa2m_afirmar((personaje = cargar_personaje("personaje_principal.txt")) != NULL, "Personaje creado correctamente");
+    pa2m_afirmar(strcmp(personaje->nombre, "Ash") == 0, "Nombre del personaje es el correcto");
+    pa2m_afirmar(personaje->equipo->cantidad == 6, "Equipo completo con 6 pokemones cargado");
+
+    arbol_destruir(personaje->pokemones);
+    lista_destruir(personaje->equipo);
+    free(personaje);
 }
 
 int main(){
     pa2m_nuevo_grupo("PRUEBAS CREACION DE HEAP");
     probar_funciones_batalla();
+    pa2m_nuevo_grupo("PRUEBAS CARGA DE DATOS PERSONAJE PRINCIPAL");
+    probar_cargar_personaje();
     pa2m_mostrar_reporte();
     return 0;
 }
