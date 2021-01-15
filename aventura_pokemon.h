@@ -33,7 +33,7 @@ typedef struct gimnasio{
   lista_t* entrenadores; //implementacion pila
 }gimnasio_t;
 
-void cargar_gimnasios();
+void* cargar_gimnasios(char nombre_archivo[MAX_ARCHIVO]);
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);
 
@@ -47,7 +47,7 @@ void mostrar_menu_gimnasio();
 
 void mostrar_menu_batalla();
 
-void mostrar_menu_victoria();
+void mostrar_menu_victoria(bool juego_terminado);
 
 void mostrar_menu_derrota();
 

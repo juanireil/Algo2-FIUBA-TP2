@@ -10,6 +10,8 @@ bool ingreso_inicio_valido(char ingreso){
 int main(){
     char ingreso_inicio;
     entrenador_t* personaje = NULL;
+    heap_t* gimnasios = NULL;
+
     mostrar_menu_inicio();
 
     scanf(" %c", &ingreso_inicio);
@@ -31,8 +33,13 @@ int main(){
     if (ingreso_inicio == 'S'){
         //simular partida
     }
-    // ingreso gimnasios
-    
+    gimnasios = cargar_gimnasios("gimnasio_brock.txt");
+    if(!gimnasios){
+        printf("Hubo algun error en la carga de los datos. Revise y reintente.\n");
+        return -1;
+    }
+    system("clear");
+    mostrar_menu_derrota();
 
     return 0;
 }
