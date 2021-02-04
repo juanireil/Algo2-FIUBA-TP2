@@ -105,7 +105,7 @@ void probar_heap_extraer_raiz(){
     destruir_cosa(cosa_1);
     heap_destruir(heap);
 }
-int pruebas(){
+int main(){
     pa2m_nuevo_grupo("PRUEBAS CREACION DE HEAP");
     probar_creacion_del_heap();
     pa2m_nuevo_grupo("PRUEBAS INSERCION DE ELEMENTOS");

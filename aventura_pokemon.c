@@ -33,6 +33,7 @@ void* crear_personaje(){
         free(entrenador);
         return NULL;
     }
+    strcpy((*entrenador).nombre, " ");
     (*entrenador).medallas =  0;
     (*entrenador).pokemones = arbol_crear(comparador_pokemones, destructor_pokemones);
     if(!(entrenador->pokemones)){
@@ -55,7 +56,11 @@ void* crear_pokemon(){
     
     return pokemon;
 }
-
+/*
+ * ver como mejorar LA FUNCION
+ * ES HOOOOOOOOORRIBLE
+ * ASI NO LA ENTREGO
+ */
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     char dato_a_guardar;
     
@@ -110,6 +115,7 @@ void* crear_gimnasio(){
     if(!gimnasio){
         return NULL;
     }
+    strcpy(gimnasio->nombre, " ");
     gimnasio->id_puntero_a_funcion = 0;
     gimnasio->entrenadores = lista_crear();
     if(!(gimnasio->entrenadores)){
@@ -124,6 +130,11 @@ void destructor_de_gimnasios(void* gimnasio){
     if(!gimnasio){
         return;
     }
+    /**
+     * DESTRUIR LOS ENTRENADORES DE LA LISTA  
+     * SINO LA MEMORIA SE PIERDE SIEMPRE
+     * VER COMO HACERLO LINDO
+     */
     lista_destruir(((gimnasio_t*)gimnasio)->entrenadores);
     free(gimnasio);
 } 
@@ -189,31 +200,36 @@ void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
         fclose(archivo_gimnasio);
         return NULL;
     }
-    /*
-    **** VER COMO AGREGO LOS PERSONAJES Y POKEMONES A SUS STRUCTS
-    **** VER TMBN CREAR NUEVOS PERSONAJES
-    ***
-    *****
-    *****
-    */
+
     while(leidos == 1){
         if (dato_a_guardar == GIMNASIO){
+            if(strcmp(gimnasio->nombre, " ") != 0){
+                if(heap_insertar(heap_gimnasios, gimnasio) == -1){
+                    printf("Ha ocurrido un error al cargar el gimnasio.\n");
+                }
+            }
             fscanf(archivo_gimnasio, FORMATO_GIMNASIOS, gimnasio->nombre, &(gimnasio->dificultad), &(gimnasio)->id_puntero_a_funcion);
         }
         if(dato_a_guardar == LIDER || dato_a_guardar == ENTRENADOR){
+            if(strcmp(entrenador->nombre, " ") != 0){
+                if(lista_apilar(gimnasio->entrenadores, entrenador) == -1){
+                    printf("Ocurrio un error y no se pudo insertar el entrenadro correctamente.\n");
+                }
+            }
             fscanf(archivo_gimnasio, "%50[^\n]\n", entrenador->nombre);
         }
         if(dato_a_guardar == POKEMON){
+            fscanf(archivo_gimnasio, FORMATO_POKEMON, (*pokemon).nombre, &((*pokemon).ataque), &((*pokemon).defensa), &((*pokemon).velocidad));
             if(entrenador->equipo->cantidad < 6){
                 lista_insertar(entrenador->equipo,pokemon);    
             }
             arbol_insertar(entrenador->pokemones, pokemon);
             pokemon = crear_pokemon();
-            leidos = fscanf(archivo_gimnasio, FORMATO_POKEMON, (*pokemon).nombre, &((*pokemon).ataque), &((*pokemon).defensa), &((*pokemon).velocidad));
         }
 
         leidos = fscanf(archivo_gimnasio, "%c;", &dato_a_guardar);
     }
+    heap_insertar(heap_gimnasios, gimnasio);
 
     fclose(archivo_gimnasio);
     return heap_gimnasios;

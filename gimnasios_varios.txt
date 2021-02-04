@@ -1,0 +1,26 @@
+G;Gimnasio de Tierra;10;3
+L;Brock
+P;Geodude;10;20;22
+P;Graveler;15;30;30
+P;Onix;20;35;32
+E;Montañero Jose
+P;Zubat;10;12;8
+P;Geodude;12;12;15
+E;Campista Pedro
+P;Hitmonlee;17;67;12
+P;Spinarak;32;56;32
+G;Gimnasio de Agua;12;2
+L;Misty
+P;Froakie;18;56;40
+P;Octillery;45;49;28
+P;Magikarp;48;10;55
+P;Gyarados;51;33;56
+E;Pescador Pedro
+P;Magikarp;48;10;55
+P;Slowpoke;15;27;35
+P;Tentacool;18;40;35
+E;Nadadora Adriana
+P;Psyduck;55;52;48
+P;Golduck;56;48;60
+P;Squirtle;43;48;61
+P;Wooper;15;45;45
