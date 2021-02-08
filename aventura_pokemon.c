@@ -56,11 +56,7 @@ void* crear_pokemon(){
     
     return pokemon;
 }
-/*
- * ver como mejorar LA FUNCION
- * ES HOOOOOOOOORRIBLE
- * ASI NO LA ENTREGO
- */
+
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     char dato_a_guardar;
     
@@ -130,11 +126,7 @@ void destructor_de_gimnasios(void* gimnasio){
     if(!gimnasio){
         return;
     }
-    /**
-     * DESTRUIR LOS ENTRENADORES DE LA LISTA  
-     * SINO LA MEMORIA SE PIERDE SIEMPRE
-     * VER COMO HACERLO LINDO
-     */
+
     lista_destruir(((gimnasio_t*)gimnasio)->entrenadores);
     free(gimnasio);
 } 
@@ -150,6 +142,11 @@ int comparar_gimnasios(void* gym_1, void* gym_2 ){
     }
     return 0;
 }
+/*
+ * ver como mejorar LA FUNCION
+ * ES HOOOOOOOOORRIBLE
+ * ASI NO LA ENTREGO
+ */
 void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
     char dato_a_guardar;
     heap_t* heap_gimnasios = crear_heap(comparar_gimnasios, destructor_de_gimnasios);
@@ -204,17 +201,16 @@ void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
     while(leidos == 1){
         if (dato_a_guardar == GIMNASIO){
             if(strcmp(gimnasio->nombre, " ") != 0){
-                if(heap_insertar(heap_gimnasios, gimnasio) == -1){
-                    printf("Ha ocurrido un error al cargar el gimnasio.\n");
-                }
+                lista_apilar(gimnasio->entrenadores, entrenador);
+                heap_insertar(heap_gimnasios, gimnasio);
+                gimnasio = crear_gimnasio();
             }
             fscanf(archivo_gimnasio, FORMATO_GIMNASIOS, gimnasio->nombre, &(gimnasio->dificultad), &(gimnasio)->id_puntero_a_funcion);
         }
         if(dato_a_guardar == LIDER || dato_a_guardar == ENTRENADOR){
             if(strcmp(entrenador->nombre, " ") != 0){
-                if(lista_apilar(gimnasio->entrenadores, entrenador) == -1){
-                    printf("Ocurrio un error y no se pudo insertar el entrenadro correctamente.\n");
-                }
+                lista_apilar(gimnasio->entrenadores, entrenador);
+                entrenador = crear_personaje();
             }
             fscanf(archivo_gimnasio, "%50[^\n]\n", entrenador->nombre);
         }

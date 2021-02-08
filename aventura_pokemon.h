@@ -33,6 +33,8 @@ typedef struct gimnasio{
   lista_t* entrenadores; //implementacion pila
 }gimnasio_t;
 
+void destructor_de_gimnasios(void* gimnasio);
+
 void* cargar_gimnasios(char nombre_archivo[MAX_ARCHIVO]);
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);

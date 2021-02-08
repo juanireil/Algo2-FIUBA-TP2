@@ -1,14 +1,17 @@
-G;Gimnasio de Tierra;10;3
-L;Brock
-P;Geodude;10;20;22
-P;Graveler;15;30;30
-P;Onix;20;35;32
-E;Montañero Jose
-P;Zubat;10;12;8
-P;Geodude;12;12;15
-E;Campista Pedro
-P;Hitmonlee;17;67;12
-P;Spinarak;32;56;32
+G;Gimnasio Electrico;15;4
+L;Lt Surge
+P;Raichu;24;38;55
+P;Magneton;40;60;33
+P;Electabuzz;63;24;57
+P;Jolteon;58;37;60
+E;Electricista Alberto
+P;Magnemite;45;35;11
+P;Mareep;35;40;40
+P;Manectric;53;57;60
+E;Recluta Alejandro
+P;Electrike;22;45;40
+P;Magnemite;45;35;11
+P;Pikachu;46;55;40
 G;Gimnasio de Agua;12;2
 L;Misty
 P;Froakie;18;56;40

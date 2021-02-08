@@ -44,14 +44,30 @@ void probar_cargar_gimnasios(){
     heap_t* gimnasios = NULL;
     pa2m_afirmar((gimnasios = cargar_gimnasios("gimnasio.txt")) == NULL, "Archivo erroneo no se crea el gimnasio");
     pa2m_afirmar((gimnasios = cargar_gimnasios("gimnasio_brock.txt")) != NULL, "Gimnasio creado correctamente");
+    pa2m_afirmar(gimnasios->tope == 1, "Cantidad de gimnasios es la correcta");
     gimnasio_t* gimnasio = heap_extraer_raiz(gimnasios);
 
     pa2m_afirmar(strcmp(gimnasio->nombre, "Gimnasio de Tierra") == 0, "Nombre del gimnasio es el correcto");
     pa2m_afirmar(gimnasio->dificultad == 10, "Dificultad correcta");
     pa2m_afirmar(gimnasio->id_puntero_a_funcion == 3, "Funcion de batallas es la correcta");
+    destructor_de_gimnasios(gimnasio);
 
-    //Probar agregar archivo con muchos gimnasios
+    pa2m_afirmar((gimnasios = cargar_gimnasios("gimnasios_varios.txt")) != NULL, "Archivo con varios gimnasios creado correctamente");
+    pa2m_afirmar(gimnasios->tope == 2, "Cantidad de gimnasios es la correcta");
+    gimnasio = heap_extraer_raiz(gimnasios);
+
+    pa2m_afirmar(strcmp(gimnasio->nombre, "Gimnasio de Agua") == 0, "Varios gimnasios nombre del gimnasio es el correcto");
+    pa2m_afirmar(gimnasio->dificultad == 12, "Dificultad correcta");
+    pa2m_afirmar(gimnasio->id_puntero_a_funcion == 2, "Funcion de batallas es la correcta");
+    
+    gimnasio = heap_extraer_raiz(gimnasios);
+    pa2m_afirmar(strcmp(gimnasio->nombre, "Gimnasio Electrico") == 0, "Nombre del gimnasio es el correcto");
+    pa2m_afirmar(gimnasio->dificultad == 15, "Dificultad correcta");
+    pa2m_afirmar(gimnasio->id_puntero_a_funcion == 4, "Funcion de batallas es la correcta");
+    destructor_de_gimnasios(gimnasio);
+
     heap_destruir(gimnasios);
+
 
 }
 int main(){
