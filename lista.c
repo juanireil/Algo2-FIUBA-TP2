@@ -7,7 +7,7 @@ static const int SE_PUDO_BORRAR = 0, NO_SE_PUDO_BORRAR = -1;
 static const size_t LISTA_VACIA = 0, PRIMERA_POSICION = 0;
 static const bool NO_TIENE_SIGUIENTE = false;
 
-lista_t* lista_crear(){
+lista_t* lista_crear(lista_liberar_elemento destructor){
     lista_t* lista = NULL;
 
     lista = malloc(sizeof(lista_t));
@@ -17,7 +17,7 @@ lista_t* lista_crear(){
     (*lista).nodo_inicio = NULL;
     (*lista).nodo_fin = NULL;
     (*lista).cantidad = 0;
-    
+    (*lista).destructor = destructor;
     return lista;
 }
 /*
@@ -117,6 +117,9 @@ int lista_borrar(lista_t* lista){
         while((*(*nodo).siguiente).siguiente != NULL){
             nodo = (*nodo).siguiente;
         }
+        if(lista->destructor){
+            lista->destructor(nodo->siguiente->elemento);
+        }
         free((*nodo).siguiente);
         (*nodo).siguiente = NULL;
         (*lista).nodo_fin = nodo;
@@ -129,16 +132,19 @@ int lista_borrar(lista_t* lista){
     Pre: Recibe un puntero al primer nodo de la lista y la posicion a borrar
     Pos: Borrara el nodo de la posicion recibida dejando la lista funcional.
 */
-void borrar_nodo(nodo_t* nodo, size_t posicion){
+void borrar_nodo(nodo_t* nodo, size_t posicion, lista_liberar_elemento destructor){
     nodo_t* nodo_aux = NULL;
 
     if(posicion == 1){
         nodo_aux = (*nodo).siguiente;
         (*nodo).siguiente = (*(*nodo).siguiente).siguiente;
+        if(destructor){
+            destructor(nodo_aux->elemento);
+        }
         free(nodo_aux);
         return;
     }
-    borrar_nodo((*nodo).siguiente, posicion-1);
+    borrar_nodo((*nodo).siguiente, posicion-1, destructor);
     return;
 }
 int lista_borrar_de_posicion(lista_t* lista, size_t posicion){
@@ -153,10 +159,13 @@ int lista_borrar_de_posicion(lista_t* lista, size_t posicion){
     nodo = (*lista).nodo_inicio;
     if(posicion == 0){
         (*lista).nodo_inicio = (*nodo).siguiente;
+        if(lista->destructor){
+            lista->destructor(nodo->elemento);
+        }
         free(nodo);
     }
     else{
-        borrar_nodo(nodo, posicion);
+        borrar_nodo(nodo, posicion, lista->destructor);
     }
     
     
@@ -227,16 +236,19 @@ void* lista_primero(lista_t* lista){
     Pre: Recibe un puntero al primer nodo de una lista.
     Pos: Recursivamente borarrara todos los nodos de la lista.
 */
-void destruir_nodos(nodo_t* nodo){
+void destruir_nodos(nodo_t* nodo, lista_liberar_elemento destructor){
     if(nodo != NULL){
-        destruir_nodos((*nodo).siguiente);
+        destruir_nodos((*nodo).siguiente, destructor);
+        if(destructor && nodo->elemento){
+            destructor(nodo->elemento);
+        }
         free(nodo);
     }
 }
 
 void lista_destruir(lista_t* lista){
     if(lista_elementos(lista) > 0){
-        destruir_nodos((*lista).nodo_inicio);
+        destruir_nodos((*lista).nodo_inicio, lista->destructor);
     }
     free(lista);
 }

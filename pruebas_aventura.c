@@ -29,8 +29,8 @@ void probar_funciones_batalla(){
 }
 
 void probar_cargar_personaje(){
-    entrenador_t* personaje = NULL;
-    pa2m_afirmar((personaje = cargar_personaje("gimnasio_brock.txt")) == NULL, "Archivo erroneo no se crea el personaje");
+    personaje_t* personaje = NULL;
+    pa2m_afirmar((personaje = cargar_personaje("gimnasio_brockas.txt")) == NULL, "Archivo erroneo no se crea el personaje");
     pa2m_afirmar((personaje = cargar_personaje("personaje_principal.txt")) != NULL, "Personaje creado correctamente");
     pa2m_afirmar(strcmp(personaje->nombre, "Ash") == 0, "Nombre del personaje es el correcto");
     pa2m_afirmar(personaje->equipo->cantidad == 6, "Equipo completo con 6 pokemones cargado");
@@ -51,6 +51,7 @@ void probar_cargar_gimnasios(){
     pa2m_afirmar(gimnasio->dificultad == 10, "Dificultad correcta");
     pa2m_afirmar(gimnasio->id_puntero_a_funcion == 3, "Funcion de batallas es la correcta");
     destructor_de_gimnasios(gimnasio);
+    heap_destruir(gimnasios);
 
     pa2m_afirmar((gimnasios = cargar_gimnasios("gimnasios_varios.txt")) != NULL, "Archivo con varios gimnasios creado correctamente");
     pa2m_afirmar(gimnasios->tope == 2, "Cantidad de gimnasios es la correcta");
@@ -59,6 +60,7 @@ void probar_cargar_gimnasios(){
     pa2m_afirmar(strcmp(gimnasio->nombre, "Gimnasio de Agua") == 0, "Varios gimnasios nombre del gimnasio es el correcto");
     pa2m_afirmar(gimnasio->dificultad == 12, "Dificultad correcta");
     pa2m_afirmar(gimnasio->id_puntero_a_funcion == 2, "Funcion de batallas es la correcta");
+    destructor_de_gimnasios(gimnasio);
     
     gimnasio = heap_extraer_raiz(gimnasios);
     pa2m_afirmar(strcmp(gimnasio->nombre, "Gimnasio Electrico") == 0, "Nombre del gimnasio es el correcto");

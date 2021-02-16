@@ -1,9 +1,9 @@
 #ifndef __AVENTURA_POKEMON_H__
 #define __AVENTURA_POKEMON_H__
 
+#include "heap.h"
 #include "abb.h"
 #include "lista.h"
-#include "heap.h"
 #include "batallas.h"
 
 #include <stddef.h>
@@ -16,16 +16,21 @@ typedef struct pokemon{
   int velocidad;
   int ataque;
   int defensa;
+  bool esta_en_equipo;
 }pokemon_t;
 
 //decidir si uso las estructuras o punteros a estas
-typedef struct entrenador{
+typedef struct personaje{
   char nombre[MAX_NOMBRE];
   int medallas;
   lista_t* equipo; //lista
   abb_t* pokemones;
-}entrenador_t;
-
+}personaje_t;
+ typedef struct entrenador{
+   char nombre [MAX_NOMBRE];
+   lista_t* equipo;
+ }
+ entrenador_t;
 typedef struct gimnasio{
   char nombre[MAX_NOMBRE];
   int dificultad;
@@ -33,13 +38,19 @@ typedef struct gimnasio{
   lista_t* entrenadores; //implementacion pila
 }gimnasio_t;
 
+typedef struct juego{
+  personaje_t* personaje;
+  heap_t* gimnasios;
+  char estado_juego;
+}juego_t;
+
 void destructor_de_gimnasios(void* gimnasio);
 
 void* cargar_gimnasios(char nombre_archivo[MAX_ARCHIVO]);
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);
 
-void jugar_aventura();
+int jugar_aventura(juego_t* juego);
 
 void simular_aventura();
 
