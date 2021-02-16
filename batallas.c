@@ -61,8 +61,8 @@ int funcion_batalla_5(void* pkm_1, void* pkm_2){
     }
     return -1;
 }
-/*
-void batallas(){
+
+int batallas(void* pokemon_1, void* pokemon_2, int id_batalla){
 
     int (*funcion_batalla[MAX_MODOS_BATALLA])(void*, void*);
 
@@ -71,5 +71,6 @@ void batallas(){
     funcion_batalla[2] = funcion_batalla_3;
     funcion_batalla[3] = funcion_batalla_4;
     funcion_batalla[4] = funcion_batalla_5;
+
+    return funcion_batalla[id_batalla](pokemon_1, pokemon_2);
 }
-*/

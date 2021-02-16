@@ -16,6 +16,7 @@ typedef struct pokemon{
   int velocidad;
   int ataque;
   int defensa;
+  int nivel;
   bool esta_en_equipo;
 }pokemon_t;
 
@@ -42,6 +43,7 @@ typedef struct juego{
   personaje_t* personaje;
   heap_t* gimnasios;
   char estado_juego;
+  int cantidad_gimnasios;
 }juego_t;
 
 void destructor_de_gimnasios(void* gimnasio);
@@ -60,7 +62,7 @@ void mostrar_menu_gimnasio();
 
 void mostrar_menu_batalla();
 
-void mostrar_menu_victoria(bool juego_terminado);
+void mostrar_menu_victoria(char estado_juego);
 
 void mostrar_menu_derrota();
 

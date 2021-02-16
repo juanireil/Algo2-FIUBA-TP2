@@ -30,20 +30,17 @@ void pedir_nombre_archivo(char nombre_archivo[MAX_NOMBRE_ARCHIVO], char ingreso_
         scanf("%s", nombre_archivo);
     }    
 }
-void inicializar_juego(juego_t* juego, heap_t* gimnasios, personaje_t* personaje, char estado_juego){
-    juego->estado_juego = estado_juego;
-    juego->gimnasios = gimnasios;
-    juego->personaje = personaje;
-}
+
 int main(){
     juego_t juego;
-    char estado_juego = JUGANDO;
+    juego.estado_juego = JUGANDO;
+
     char ingreso_inicio;
     char nombre_archivo[MAX_NOMBRE_ARCHIVO];
 
-    while (estado_juego == JUGANDO){
+    while (juego.estado_juego == JUGANDO){    
         mostrar_menu_inicio();
-
+        
         scanf(" %c", &ingreso_inicio);
         while (!ingreso_inicio_valido(ingreso_inicio)){
             printf("Ingreso invalido, vea los ingresos posibles.\n");
@@ -62,11 +59,12 @@ int main(){
         }
         if (ingreso_inicio == 'I'){
             if(!juego.personaje || !juego.gimnasios){
-                printf("No ha caregado o el archivo de gimnasios o el del personaje, sin esa informacion no se puede jugar\n");
+                printf("No ha cargado o el archivo de gimnasios o el del personaje, sin esa informacion no se puede jugar\n");
                 sleep(1);
             }
             else{
-                inicializar_juego(&juego, juego.gimnasios, juego.personaje, estado_juego);
+                juego.cantidad_gimnasios = juego.gimnasios->tope;
+                sleep(1);
                 if(jugar_aventura(&juego) == -1){
                     printf("Ha ocurrido un error durante su partida, debemos terminar el juego, vuelva a intentarlo\n");
                     return -1;
@@ -74,7 +72,6 @@ int main(){
             }
         }
         if (ingreso_inicio == 'S'){
-            inicializar_juego(&juego, juego.gimnasios, juego.personaje, estado_juego);
             //simular partida
         }
         if(ingreso_inicio == 'A'){
@@ -84,6 +81,8 @@ int main(){
                 printf("Hubo algun error en la carga de los datos. Revise y reintente.\n");
                 pedir_nombre_archivo(nombre_archivo, ingreso_inicio);
             }
+            printf("Informacion de los gimnasios cargada correctamente\n");
+            sleep(1);
         }
     }
     system("clear");

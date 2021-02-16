@@ -7,6 +7,8 @@
 #define FORMATO_POKEMON "%20[^;];%i;%i;%i\n"
 #define FORMATO_GIMNASIOS "%50[^;];%i;%i\n"
 #define JUGANDO 'J'
+#define PERDIDO 'P'
+#define GANADO 'G'
 #define ERROR -1
 const char GIMNASIO = 'G', LIDER = 'L', POKEMON = 'P', ENTRENADOR = 'E';
 
@@ -55,6 +57,7 @@ void* crear_pokemon(){
     (*pokemon).ataque = 0;
     (*pokemon).defensa = 0;
     (*pokemon).velocidad = 0;
+    (*pokemon).nivel = 0;
     (*pokemon).esta_en_equipo = false;
     
     return pokemon;
@@ -251,9 +254,9 @@ void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
     fclose(archivo_gimnasio);
     return heap_gimnasios;
 }
-void mostrar_menu_victoria(bool juego_terminado){
+void mostrar_menu_victoria(char estado_juego){
     system("clear");
-    if(!juego_terminado){
+    if(estado_juego == JUGANDO){
         printf("Felicitaciones!!! \n Has vencido este ginasio.\n");
         printf("_T Toma un pokemon del lider e incorporalo a tu equipo\n");
         printf("_C Realizar cambios en el equipo\n");
@@ -266,7 +269,7 @@ void mostrar_menu_victoria(bool juego_terminado){
 }
 void mostrar_menu_derrota(){
     system("clear");
-    printf("Has sido derrotado, tus pokemones han sido llevados al centro pokemon más cercano.\nEligue que qquieres hacer a continuación.\n");
+    printf("Has sido derrotado, tus pokemones han sido llevados al centro pokemon más cercano.\nEligue que quieres hacer a continuación.\n");
     printf("_R Reintentar el combate.                                 _F Finalizar partida.\n");
     printf("_C Cambiar pokemones del equipo.\n");
 }
@@ -286,7 +289,8 @@ bool mostrar_pokemones_lista(void* elemento, void* contador){
         (*(int*)contador)+=1;
         printf("    Pokemon N° %i\n", (*(int*)contador));
         printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)elemento)->nombre,((pokemon_t*)elemento)->velocidad);
-        printf("    Ataque: %i\n    Defensa: %i\n\n",  ((pokemon_t*)elemento)->ataque,((pokemon_t*)elemento)->defensa);
+        printf("    Ataque: %i\n    Defensa: %i\n",  ((pokemon_t*)elemento)->ataque,((pokemon_t*)elemento)->defensa);
+        printf("    Nivel: %i\n\n",((pokemon_t*)elemento)->nivel);
     }
     return true;
 }
@@ -296,6 +300,7 @@ bool mostrar_pokemones_arbol(void* elemento, void* contador){
         (*(int*)contador)+=1;
         printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)elemento)->nombre,((pokemon_t*)elemento)->velocidad);
         printf("    Ataque: %i\n    Defensa: %i\n\n",  ((pokemon_t*)elemento)->ataque,((pokemon_t*)elemento)->defensa);
+        printf("    Nivel: %i\n\n",((pokemon_t*)elemento)->nivel);
     }
     return false;
 }
@@ -397,10 +402,188 @@ int modificar_equipo(personaje_t* personaje){
     destructor_pokemones(pokemon_aux);
     return 0;
 }
+void mostrar_pokemones_combate(pokemon_t* pokemon){
+
+    printf("    Nombre: %s\n    Velocidad: %i\n", pokemon->nombre,pokemon->velocidad);
+    printf("    Ataque: %i\n    Defensa: %i\n\n",  pokemon->ataque,pokemon->defensa);
+    
+}
+bool ingreso_combate_valido(char ingreso){
+    return ingreso == 'N';
+}
+
+void pedir_ingreso(char ingreso){
+    printf("Presione N para poceder al siguiente combate\n");
+    scanf(" %c", &ingreso);
+    while(!ingreso_combate_valido(ingreso)){
+        printf("Ingreo invalido, vuelvalo a intentar\n");
+        scanf("%c", &ingreso);
+    }
+}
+
+void mostrar_menu_batalla(pokemon_t* pokemon_personaje, pokemon_t* pokemon_enemigo, int resultado_batalla){
+    char ingreso = ' ';
+    system("clear");
+    printf("Pokemon 1\n");
+    mostrar_pokemones_combate(pokemon_personaje);
+    printf("Pokemon 2\n");
+    mostrar_pokemones_combate(pokemon_enemigo);
+    if(resultado_batalla > 0){
+        printf("Tu pokemon ha vencido, preparate para el siguiente combate\n\n");
+    }
+    else{
+        printf("Tu pokemon ha sido derrotado, preparate para el siguiente combate\n\n");
+    }
+    pedir_ingreso(ingreso);
+}
+
+void subir_nivel_pokemon(pokemon_t* pokemon){
+    if(pokemon->nivel <= 63){
+        pokemon->ataque ++;
+        pokemon->defensa ++;
+        pokemon->velocidad++;
+        pokemon->nivel ++;
+    }
+}
+
+bool quedan_pokemones_en_equipo(lista_t* equipo, size_t posicion_pokemon){
+    return (equipo->cantidad > posicion_pokemon);
+}
+
+
+bool ingreso_derrota_valido(char ingreso){
+    return (ingreso == 'C' || ingreso == 'R' || ingreso == 'F');
+}
+
+void pedir_ingreso_derrota(char* ingreso){
+    scanf("%c", ingreso);
+    while(!ingreso_derrota_valido(*ingreso)){
+        printf("Ingreso invalido, intente nuevamente\n");
+        scanf("%c", ingreso);
+    }
+}
+
+int acciones_derrota(personaje_t* personaje, char* estado_juego){
+    char ingreso = ' ';
+    mostrar_menu_derrota();
+    pedir_ingreso_derrota(&ingreso);
+
+    if(ingreso == 'C'){
+        system("clear");
+        if(modificar_equipo(personaje) == ERROR){
+            printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
+            return ERROR;
+        }
+    }
+    if(ingreso == 'R'){
+        printf("Volveras al menu de gimnasio para reintentarlo desde el entrenador que lo dejaste\n");
+        sleep(1);
+    }
+    if(ingreso == 'F'){
+        *estado_juego = PERDIDO;
+        printf("Muchas gracias por haber jugado a nuestro juego, esperamos que vuelvas a jugar\n");
+        sleep(1);
+    }
+    return 0;
+}
+
+bool ingreso_victoria_valido(char ingreso){
+    return (ingreso == 'T' || ingreso == 'C' || ingreso == 'N');
+}
+
+void pedir_ingreso_victoria(char* ingreso){
+    scanf("%c", ingreso);
+    while(!ingreso_victoria_valido(*ingreso)){
+        printf("Ingreso invalido, intente nuevamente\n");
+        scanf("%c", ingreso);
+    }
+}
+
+int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* entrenador){
+    char ingreso = ' ';
+    
+    mostrar_menu_victoria(*estado_juego);
+    if(*estado_juego == JUGANDO){
+        pedir_ingreso_victoria(&ingreso);
+
+        if(ingreso == 'C'){
+            system("clear");
+            if(modificar_equipo(personaje) == ERROR){
+                printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
+                return ERROR;
+            }
+        }
+        if(ingreso == 'T'){
+            /*
+            *   ver robar a lider
+            * 
+            */ 
+        }
+        if(ingreso == 'N'){
+            return 1;
+        }
+    }
+    else{
+        printf("Presione cualquier boton para terminar su partida\n");
+        scanf(" %c", &ingreso);
+    }
+    return 1;
+}
+
+int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios){
+    int resultado_batalla = 0;
+    size_t posicion_pokemon_personaje = 0;
+    size_t posicion_pokemon_enemigo = 0;
+    entrenador_t* entrenador;
+    pokemon_t* pokemon_personaje;
+    pokemon_t* pokemon_enemigo;
+
+    while (!lista_vacia(gimnasio->entrenadores) && quedan_pokemones_en_equipo(personaje->equipo, posicion_pokemon_personaje)){
+        posicion_pokemon_personaje = 0;
+        posicion_pokemon_enemigo = 0;
+        
+        entrenador = lista_tope(gimnasio->entrenadores);
+
+        while(quedan_pokemones_en_equipo(entrenador->equipo, posicion_pokemon_enemigo) && quedan_pokemones_en_equipo(personaje->equipo, posicion_pokemon_personaje)){
+            pokemon_personaje = lista_elemento_en_posicion(personaje->equipo, posicion_pokemon_personaje);
+            pokemon_enemigo = lista_elemento_en_posicion(entrenador->equipo, posicion_pokemon_enemigo);
+            
+            resultado_batalla = batallas(pokemon_personaje, pokemon_enemigo, (gimnasio->id_puntero_a_funcion)-1);
+            mostrar_menu_batalla(pokemon_personaje, pokemon_enemigo, resultado_batalla);
+
+            if(resultado_batalla < 0){
+                posicion_pokemon_personaje ++;
+            }
+            else{
+                posicion_pokemon_enemigo++;
+                subir_nivel_pokemon(pokemon_personaje);
+            }
+        }
+        if(quedan_pokemones_en_equipo(personaje->equipo, posicion_pokemon_personaje)){
+            printf("Has vencido a este entrenador, preparate para el siguiente\n");
+            sleep(1);
+            lista_desapilar(gimnasio->entrenadores);
+        }
+    }
+
+    if(!quedan_pokemones_en_equipo(personaje->equipo, posicion_pokemon_personaje)){
+        return acciones_derrota(personaje, estado_juego);  
+    }
+    else{
+        personaje->medallas ++;
+        if(cantidad_gimnasios <= personaje->medallas){
+            *estado_juego = GANADO;
+        }
+        return acciones_victoria(personaje, estado_juego,entrenador);
+    }
+    return 1;
+}
+
 int jugar_aventura(juego_t* juego){
     char ingreso;
+    gimnasio_t* gimnasio = heap_extraer_raiz(juego->gimnasios);
     while (juego->estado_juego == JUGANDO){
-        gimnasio_t* gimnasio = heap_extraer_raiz(juego->gimnasios);
+        int resultado_batalla_gimnasio = 0;
         mostrar_menu_gimnasio();
         
         scanf(" %c", &ingreso);
@@ -424,13 +607,22 @@ int jugar_aventura(juego_t* juego){
             }
         }
         if(ingreso == 'B'){
+            if(!gimnasio){
+                return ERROR;
+            }
+            resultado_batalla_gimnasio = batalla_gimnasio(juego->personaje, gimnasio, &(juego->estado_juego), juego->cantidad_gimnasios);
             
+            if(resultado_batalla_gimnasio == 1){
+                if(juego->estado_juego == JUGANDO){                
+                    gimnasio = heap_extraer_raiz(juego->gimnasios);
+                }
+            }
+            if(resultado_batalla_gimnasio == ERROR){
+                return ERROR;
+            }
         }
         sleep(1);
     }
     return 0;
-    
-    
-
 }
 

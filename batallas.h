@@ -26,5 +26,6 @@ int funcion_batalla_4(void* pkm_1, void* pkm_2);
 
 int funcion_batalla_5(void* pkm_1, void* pkm_2);
 
+int batallas(void* pokemon_1, void* pokemon_2, int id_batallas);
 
 #endif /* __BATALLAS_H__ */

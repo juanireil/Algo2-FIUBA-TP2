@@ -1,5 +1,7 @@
 E;Ash
+P;Kangaskhan;90;1;32
 P;Bulbasaur;29;15;34
+P;Feraligatorr;70;32;32
 P;Lanturn;50;2;3
 P;Croagunk;50;76;22
 P;Feebas;18;79;24
