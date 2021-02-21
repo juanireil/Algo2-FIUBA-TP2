@@ -63,7 +63,10 @@ int funcion_batalla_5(void* pkm_1, void* pkm_2){
 }
 
 int batallas(void* pokemon_1, void* pokemon_2, int id_batalla){
-
+    if(!pokemon_1 || !pokemon_2){
+        return 0;
+    }
+    
     int (*funcion_batalla[MAX_MODOS_BATALLA])(void*, void*);
 
     funcion_batalla[0] = funcion_batalla_1;

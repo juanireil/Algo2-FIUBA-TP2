@@ -28,5 +28,8 @@ aventura_pokemon: abb.c lista.c batallas.c aventura_pokemon.c heap.c aventura.c 
 debug_aventura: aventura_pokemon
 	gdb ./aventura_pokemon
 
+valgrind_aventura: aventura_pokemon
+	valgrind $(FLAGS_VALGRIND) ./aventura_pokemon
+
 aventura: aventura_pokemon
 	./aventura_pokemon

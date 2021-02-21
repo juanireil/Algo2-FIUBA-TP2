@@ -20,11 +20,10 @@ typedef struct pokemon{
   bool esta_en_equipo;
 }pokemon_t;
 
-//decidir si uso las estructuras o punteros a estas
 typedef struct personaje{
   char nombre[MAX_NOMBRE];
   int medallas;
-  lista_t* equipo; //lista
+  lista_t* equipo; //Implementado como lista
   abb_t* pokemones;
 }personaje_t;
  typedef struct entrenador{
@@ -36,7 +35,7 @@ typedef struct gimnasio{
   char nombre[MAX_NOMBRE];
   int dificultad;
   int id_puntero_a_funcion;
-  lista_t* entrenadores; //implementacion pila
+  lista_t* entrenadores; //Implementado como pila
 }gimnasio_t;
 
 typedef struct juego{
@@ -46,11 +45,33 @@ typedef struct juego{
   int cantidad_gimnasios;
 }juego_t;
 
+void destructor_de_pokemones(void* pokemon);
+
+int comparador_pokemones(void* pokemon_1, void* pokemon_2);
+
+void* crear_personaje();
+
+void destruir_personaje(personaje_t* personaje);
+
+void* crear_pokemon();
+
+void destructor_entrenadores(void* entrenador);
+
+void* crear_gimnasio();
+
 void destructor_de_gimnasios(void* gimnasio);
+
+int comparar_gimnasios(void* gimnasio_1, void* gimnasio_2);
+
+void* crear_entrenador();
+
+void subir_nivel_pokemon(pokemon_t* pokemon);
 
 void* cargar_gimnasios(char nombre_archivo[MAX_ARCHIVO]);
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);
+
+int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios);
 
 int jugar_aventura(juego_t* juego);
 

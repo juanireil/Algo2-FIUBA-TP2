@@ -49,6 +49,13 @@ void* crear_personaje(){
     return entrenador;
 
 }
+
+void destruir_personaje(personaje_t* personaje){
+    arbol_destruir(personaje->pokemones);
+    lista_destruir(personaje->equipo);
+    free(personaje);
+}
+
 void* crear_pokemon(){
     pokemon_t* pokemon = malloc(sizeof(pokemon_t));
     if(!pokemon){
@@ -535,6 +542,7 @@ int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* 
         if(ingreso == 'C'){
             system("clear");
             if(modificar_equipo(personaje) == ERROR){
+                destructor_entrenadores(entrenador);
                 printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
                 return ERROR;
             }
@@ -543,6 +551,7 @@ int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* 
             mostrar_pokemones_lider(entrenador);
             pedir_pokemon_lider(entrenador, &posicion_pokemon_lider);
             pokemon = obtener_pokemon(entrenador, posicion_pokemon_lider-1);
+            destructor_entrenadores(entrenador);
             if(arbol_insertar(personaje->pokemones, pokemon) == ERROR){
                 printf("Ha ocurrido un error al sacar un pokemon del lider, lo sentimos reintentelo\n");
                 return ERROR;
@@ -554,6 +563,7 @@ int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* 
         }
     }
     else{
+        destructor_entrenadores(entrenador);
         printf("Presione cualquier boton para terminar su partida\n");
         scanf(" %c", &ingreso);
     }
@@ -636,26 +646,36 @@ int jugar_aventura(juego_t* juego){
             system("clear");
             if(modificar_equipo(juego->personaje) == ERROR){
                 printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
+                heap_destruir(juego->gimnasios);
+                destruir_personaje(juego->personaje);
                 return ERROR;
             }
         }
         if(ingreso == 'B'){
             if(!gimnasio){
+                heap_destruir(juego->gimnasios);
+                destruir_personaje(juego->personaje);
                 return ERROR;
             }
             resultado_batalla_gimnasio = batalla_gimnasio(juego->personaje, gimnasio, &(juego->estado_juego), juego->cantidad_gimnasios);
             
             if(resultado_batalla_gimnasio == 1){
-                if(juego->estado_juego == JUGANDO){                
+                if(juego->estado_juego == JUGANDO){  
+                    destructor_de_gimnasios(gimnasio);              
                     gimnasio = heap_extraer_raiz(juego->gimnasios);
                 }
             }
             if(resultado_batalla_gimnasio == ERROR){
+                heap_destruir(juego->gimnasios);
+                destruir_personaje(juego->personaje);
                 return ERROR;
             }
         }
         sleep(1);
     }
+    destructor_de_gimnasios(gimnasio);
+    destruir_personaje(juego->personaje);
+    heap_destruir(juego->gimnasios);
     return 0;
 }
 
