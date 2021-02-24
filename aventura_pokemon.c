@@ -10,9 +10,14 @@
 #define PERDIDO 'P'
 #define GANADO 'G'
 #define ERROR -1
+static const char JUGAR = 'I', SIMULAR = 'S';
 const char GIMNASIO = 'G', LIDER = 'L', POKEMON = 'P', ENTRENADOR = 'E';
 
+
 void destructor_pokemones(void* pokemon){
+    if(!pokemon){
+        return;
+    }
     free(pokemon);
 }
 int comparador_pokemones(void* pokemon_1, void* pokemon_2){
@@ -72,7 +77,7 @@ void* crear_pokemon(){
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     char dato_a_guardar;
-    
+
     personaje_t* personaje = crear_personaje();
     pokemon_t* pokemon = crear_pokemon();
     if(!personaje || !pokemon){
@@ -172,76 +177,116 @@ void* crear_entrenador(){
         return NULL;
     }
     strcpy(entrenador->nombre, " ");
+    entrenador->es_lider = false;
     return entrenador;
 }
+
+bool es_dato_valido(char dato_a_guardar){
+    return (dato_a_guardar == LIDER || dato_a_guardar == ENTRENADOR || dato_a_guardar == GIMNASIO || dato_a_guardar == POKEMON);
+}
+
+bool es_id_batalla_valido(int id_batalla){
+    return ((id_batalla > 1) && (id_batalla < 6));
+}
+
+bool es_dificultad_valida(int dificultad){
+    return dificultad > 0;
+}
+
+bool hay_lider(lista_t* entrenadores){
+    entrenador_t* entrenador = lista_elemento_en_posicion(entrenadores, 0);
+    if(!entrenador){
+        return false;
+    }
+    
+    return entrenador->es_lider;
+}
+
 /*
  * ver como mejorar LA FUNCION
  * ES HOOOOOOOOORRIBLE
  * ASI NO LA ENTREGO
  */
-void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
+int cargar_gimnasios(heap_t* heap_gimnasios, char nombre_gimnasio[MAX_ARCHIVO]){
     char dato_a_guardar;
-    heap_t* heap_gimnasios = crear_heap(comparar_gimnasios, destructor_de_gimnasios);
+    bool hay_gimnasio = false;
     if(!heap_gimnasios){
-        return NULL;
+        printf("Heap gimnasios ingresado es invalido");
+        return ERROR;
     }
     gimnasio_t* gimnasio = crear_gimnasio();
     if(!gimnasio){
-        heap_destruir(heap_gimnasios);
-        return NULL;
+        return ERROR;
     }
     entrenador_t* entrenador = crear_entrenador();
     if(!entrenador){
-        heap_destruir(heap_gimnasios);
         destructor_de_gimnasios(gimnasio);
-        return NULL;
+        return ERROR;
     }
     pokemon_t* pokemon = crear_pokemon();
 
     if(!pokemon){
-        heap_destruir(heap_gimnasios);
         destructor_de_gimnasios(gimnasio);
         lista_destruir(entrenador->equipo);
         free(entrenador);
-        return NULL;
+        return ERROR;
     }
     FILE* archivo_gimnasio = fopen(nombre_gimnasio, "r");
     if(!archivo_gimnasio){
         printf("No se pudo abrir el archivo. Revise y vuelva a intentar.\n");
-        free(pokemon);
         lista_destruir(entrenador->equipo);
         free(entrenador);
         destructor_de_gimnasios(gimnasio);
-        heap_destruir(heap_gimnasios);
+        destructor_pokemones(pokemon);
 
-        return NULL;
+        return ERROR;
     }
     int leidos = fscanf(archivo_gimnasio, "%c;", &dato_a_guardar);
     if (leidos != 1){
-        free(pokemon);
         lista_destruir(entrenador->equipo);
         free(entrenador);
         destructor_de_gimnasios(gimnasio);
-        heap_destruir(heap_gimnasios);
+        destructor_pokemones(pokemon);
         fclose(archivo_gimnasio);
-        return NULL;
+        return ERROR;
     }
-    while(leidos == 1){
+    while(leidos == 1 && es_dato_valido(dato_a_guardar)){
         if (dato_a_guardar == GIMNASIO){
-            if(strcmp(gimnasio->nombre, " ") != 0){
+            if(lista_elementos(gimnasio->entrenadores) > 0){
                 lista_apilar(gimnasio->entrenadores, entrenador);
                 heap_insertar(heap_gimnasios, gimnasio);
                 gimnasio = crear_gimnasio();
                 entrenador = crear_entrenador();
             }
             fscanf(archivo_gimnasio, FORMATO_GIMNASIOS, gimnasio->nombre, &(gimnasio->dificultad), &(gimnasio)->id_puntero_a_funcion);
+            if(!es_id_batalla_valido(gimnasio->id_puntero_a_funcion) || !es_dificultad_valida(gimnasio->dificultad)){
+                printf("Gimnasio invalido, no puede ser cargado\n");
+                sleep(1);
+                lista_destruir(entrenador->equipo);
+                free(entrenador);
+                destructor_de_gimnasios(gimnasio);
+                destructor_pokemones(pokemon);
+                fclose(archivo_gimnasio);
+                return ERROR;
+            }
+            hay_gimnasio = true;
         }
-        if(dato_a_guardar == LIDER || dato_a_guardar == ENTRENADOR){
-            if(strcmp(entrenador->nombre, " ") != 0){
+        if(dato_a_guardar == LIDER && hay_gimnasio){
+            if(lista_elementos(entrenador->equipo) > 0){
                 lista_apilar(gimnasio->entrenadores, entrenador);
                 entrenador = crear_entrenador();
             }
             fscanf(archivo_gimnasio, "%50[^\n]\n", entrenador->nombre);
+            entrenador->es_lider = true; 
+        }
+        if(dato_a_guardar == ENTRENADOR){
+            if(lista_elementos(entrenador->equipo) > 0){
+                lista_apilar(gimnasio->entrenadores, entrenador);
+                entrenador = crear_entrenador();
+            }
+            if((hay_lider(gimnasio->entrenadores))){
+                fscanf(archivo_gimnasio, "%50[^\n]\n", entrenador->nombre);
+            }
         }
         if(dato_a_guardar == POKEMON){
             fscanf(archivo_gimnasio, FORMATO_POKEMON, (*pokemon).nombre, &((*pokemon).ataque), &((*pokemon).defensa), &((*pokemon).velocidad));
@@ -253,12 +298,22 @@ void* cargar_gimnasios(char nombre_gimnasio[MAX_ARCHIVO]){
 
         leidos = fscanf(archivo_gimnasio, "%c;", &dato_a_guardar);
     }
+    if(!es_dato_valido(dato_a_guardar)){
+        printf("El archivo ingresado no es valido para esta accion.\n");
+        sleep(1);
+        lista_destruir(entrenador->equipo);
+        free(entrenador);
+        destructor_de_gimnasios(gimnasio);
+        destructor_pokemones(pokemon);
+        fclose(archivo_gimnasio);
+        return ERROR;
+    }
     destructor_pokemones(pokemon);
     lista_apilar(gimnasio->entrenadores, entrenador);
     heap_insertar(heap_gimnasios, gimnasio);
 
     fclose(archivo_gimnasio);
-    return heap_gimnasios;
+    return 1;
 }
 void mostrar_menu_victoria(char estado_juego){
     system("clear");
@@ -465,8 +520,15 @@ void pedir_ingreso_derrota(char* ingreso){
     }
 }
 
-int acciones_derrota(personaje_t* personaje, char* estado_juego){
+int acciones_derrota(personaje_t* personaje, char* estado_juego, char modo_de_juego){
     char ingreso = ' ';
+    if(modo_de_juego == SIMULAR){
+        system("clear");
+        *estado_juego = PERDIDO;
+        printf("Tu simulacion ha terminado en una derrota.\nMuchas gracias por haber jugado esperamos que vuelvas a jugar\n");
+        sleep(1);
+        return 0;
+    }
     mostrar_menu_derrota();
     pedir_ingreso_derrota(&ingreso);
 
@@ -530,15 +592,23 @@ void* obtener_pokemon(entrenador_t* entrenador, size_t pokemon_a_cambiar){
     return pokemon;
 }
 
-int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* entrenador){
+int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* entrenador, char modo_de_juego){
     char ingreso = ' ';
     size_t posicion_pokemon_lider = 0;
     pokemon_t* pokemon;
-
-    mostrar_menu_victoria(*estado_juego);
+    if(modo_de_juego == SIMULAR){
+        if(*estado_juego == GANADO){
+            mostrar_menu_victoria(*estado_juego);
+            ingreso = 'N';
+        }
+    }
+    else{
+        mostrar_menu_victoria(*estado_juego);
+    }
     if(*estado_juego == JUGANDO){
-        pedir_ingreso_victoria(&ingreso);
-
+        if(modo_de_juego == JUGAR){
+            pedir_ingreso_victoria(&ingreso);
+        }
         if(ingreso == 'C'){
             system("clear");
             if(modificar_equipo(personaje) == ERROR){
@@ -570,7 +640,7 @@ int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* 
     return 1;
 }
 
-int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios){
+int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios, char modo_de_juego){
     int resultado_batalla = 0;
     entrenador_t* entrenador;
     pokemon_t* pokemon_personaje;
@@ -589,7 +659,9 @@ int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_
             pokemon_enemigo = lista_iterador_elemento_actual(iterador_enemigo);
             
             resultado_batalla = batallas(pokemon_personaje, pokemon_enemigo, (gimnasio->id_puntero_a_funcion)-1);
-            mostrar_menu_batalla(pokemon_personaje, pokemon_enemigo, resultado_batalla);
+            if(modo_de_juego  == JUGAR){
+               mostrar_menu_batalla(pokemon_personaje, pokemon_enemigo, resultado_batalla);
+            }
 
             if(resultado_batalla < 0){
                 lista_iterador_avanzar(iterador_personaje);
@@ -600,8 +672,10 @@ int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_
             }
         }
         if(!lista_iterador_tiene_siguiente(iterador_enemigo)){
-            printf("Has vencido a este entrenador, preparate para el siguiente\n");
-            sleep(1);
+            if(modo_de_juego == JUGAR){
+                printf("Has vencido a este entrenador, preparate para el siguiente\n");
+                sleep(1);
+            }
             lista_desapilar(gimnasio->entrenadores);
         }
         lista_iterador_destruir(iterador_enemigo);
@@ -609,7 +683,7 @@ int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_
 
     if(!lista_iterador_tiene_siguiente(iterador_personaje)){
         lista_iterador_destruir(iterador_personaje);
-        return acciones_derrota(personaje, estado_juego);  
+        return acciones_derrota(personaje, estado_juego, modo_de_juego);  
     }
     else{
         lista_iterador_destruir(iterador_personaje);
@@ -617,7 +691,7 @@ int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_
         if(cantidad_gimnasios <= personaje->medallas){
             *estado_juego = GANADO;
         }
-        return acciones_victoria(personaje, estado_juego,entrenador);
+        return acciones_victoria(personaje, estado_juego,entrenador, modo_de_juego);
     }
     return 1;
 }
@@ -627,13 +701,19 @@ int jugar_aventura(juego_t* juego){
     gimnasio_t* gimnasio = heap_extraer_raiz(juego->gimnasios);
     while (juego->estado_juego == JUGANDO){
         int resultado_batalla_gimnasio = 0;
-        mostrar_menu_gimnasio();
-        
-        scanf(" %c", &ingreso);
-        while (!ingreso_valido(ingreso)){
-            printf("Ingreso invalido, vea los ingresos posibles.\n");
+        if(juego->modo_de_juego == 'I'){
+            mostrar_menu_gimnasio();
+            
             scanf(" %c", &ingreso);
+            while (!ingreso_valido(ingreso)){
+                printf("Ingreso invalido, vea los ingresos posibles.\n");
+                scanf(" %c", &ingreso);
+            }
         }
+        else{
+            ingreso = 'B';
+        }
+
         if(ingreso == 'E'){
             system("clear");
             mostrar_personaje(juego->personaje);
@@ -657,7 +737,7 @@ int jugar_aventura(juego_t* juego){
                 destruir_personaje(juego->personaje);
                 return ERROR;
             }
-            resultado_batalla_gimnasio = batalla_gimnasio(juego->personaje, gimnasio, &(juego->estado_juego), juego->cantidad_gimnasios);
+            resultado_batalla_gimnasio = batalla_gimnasio(juego->personaje, gimnasio, &(juego->estado_juego), juego->cantidad_gimnasios, juego->modo_de_juego );
             
             if(resultado_batalla_gimnasio == 1){
                 if(juego->estado_juego == JUGANDO){  

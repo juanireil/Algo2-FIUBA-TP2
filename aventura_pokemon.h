@@ -29,6 +29,7 @@ typedef struct personaje{
  typedef struct entrenador{
    char nombre [MAX_NOMBRE];
    lista_t* equipo;
+   bool es_lider;
  }
  entrenador_t;
 typedef struct gimnasio{
@@ -43,6 +44,7 @@ typedef struct juego{
   heap_t* gimnasios;
   char estado_juego;
   int cantidad_gimnasios;
+  char modo_de_juego;
 }juego_t;
 
 void destructor_de_pokemones(void* pokemon);
@@ -67,11 +69,11 @@ void* crear_entrenador();
 
 void subir_nivel_pokemon(pokemon_t* pokemon);
 
-void* cargar_gimnasios(char nombre_archivo[MAX_ARCHIVO]);
+int cargar_gimnasios(heap_t* heap_gimnasios ,char nombre_archivo[MAX_ARCHIVO]);
 
 void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]);
 
-int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios);
+int batalla_gimnasio(personaje_t* personaje, gimnasio_t* gimnasio, char* estado_juego, int cantidad_gimnasios, char modo_de_juego);
 
 int jugar_aventura(juego_t* juego);
 

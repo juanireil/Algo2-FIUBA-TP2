@@ -8,9 +8,11 @@
 #define GANADO 'G'
 #define JUGANDO 'J'
 #define PERDIDO 'P'
+#define ERROR -1
+static const char JUGAR = 'I', SIMULAR = 'S', ENTRENADOR = 'E', GIMNASIO = 'A';
 
 bool ingreso_inicio_valido(char ingreso){
-    return (ingreso == 'E' || ingreso == 'I' || ingreso == 'S' || ingreso == 'A');
+    return (ingreso == ENTRENADOR || ingreso == JUGAR || ingreso == SIMULAR || ingreso == GIMNASIO);
 }
 
 bool es_nombre_archivo_valido(char nombre_archivo[MAX_NOMBRE_ARCHIVO]){
@@ -31,13 +33,20 @@ void pedir_nombre_archivo(char nombre_archivo[MAX_NOMBRE_ARCHIVO], char ingreso_
     }    
 }
 
+void inicializar_juego(juego_t* juego){
+    juego->estado_juego  = JUGANDO;
+    juego->gimnasios = crear_heap(comparar_gimnasios, destructor_de_gimnasios);
+    juego->personaje = NULL;
+    juego->cantidad_gimnasios = 0;
+
+}
+
 int main(){
     juego_t juego;
-    juego.estado_juego = JUGANDO;
-
     char ingreso_inicio;
     char nombre_archivo[MAX_NOMBRE_ARCHIVO];
 
+    inicializar_juego(&juego);
     while (juego.estado_juego == JUGANDO){    
         mostrar_menu_inicio();
         
@@ -46,42 +55,48 @@ int main(){
             printf("Ingreso invalido, vea los ingresos posibles.\n");
             scanf(" %c", &ingreso_inicio);
         }
-        if (ingreso_inicio == 'E'){
-            pedir_nombre_archivo(nombre_archivo, ingreso_inicio);
-            printf("Obteniendo la informacion de su personaje\n");
-            juego.personaje = cargar_personaje(nombre_archivo);
+        if (ingreso_inicio == ENTRENADOR){
             if(!juego.personaje){
-                printf("Hubo algun error al cargar los datos de su personaje. Revise y reintente.\n");
                 pedir_nombre_archivo(nombre_archivo, ingreso_inicio);
+                printf("Obteniendo la informacion de su personaje\n");
+                juego.personaje = cargar_personaje(nombre_archivo);
+
+                if(!juego.personaje){
+                printf("Hubo algun error al cargar los datos de su personaje. Revise y reintente.\n");
+                }
+                else{
+                    printf("Personaje cargado correctamente\n");
+                }
             }
-            printf("Personaje cargado correctamente\n");
+            else{
+                printf("Ya cargaste un personaje no se puede cargar otro\n");
+            }
             sleep(1);
         }
-        if (ingreso_inicio == 'I'){
-            if(!juego.personaje || !juego.gimnasios){
+        if (ingreso_inicio == JUGAR || ingreso_inicio == SIMULAR){
+            juego.cantidad_gimnasios = juego.gimnasios->tope;
+            juego.modo_de_juego = ingreso_inicio;
+
+            if(!juego.personaje || juego.cantidad_gimnasios < 1){
                 printf("No ha cargado o el archivo de gimnasios o el del personaje, sin esa informacion no se puede jugar\n");
                 sleep(1);
             }
             else{
-                juego.cantidad_gimnasios = juego.gimnasios->tope;
-                sleep(1);
                 if(jugar_aventura(&juego) == -1){
                     printf("Ha ocurrido un error durante su partida, debemos terminar el juego, vuelva a intentarlo\n");
                     return -1;
                 }
             }
         }
-        if (ingreso_inicio == 'S'){
-            //simular partida
-        }
-        if(ingreso_inicio == 'A'){
+        if(ingreso_inicio == GIMNASIO){
             pedir_nombre_archivo(nombre_archivo, ingreso_inicio);
-            juego.gimnasios = cargar_gimnasios(nombre_archivo);
-            if(!juego.gimnasios){
+            
+            if(cargar_gimnasios(juego.gimnasios, nombre_archivo) == ERROR){
                 printf("Hubo algun error en la carga de los datos. Revise y reintente.\n");
-                pedir_nombre_archivo(nombre_archivo, ingreso_inicio);
             }
-            printf("Informacion de los gimnasios cargada correctamente\n");
+            else{
+                printf("Informacion de los gimnasios cargada correctamente\n");
+            }
             sleep(1);
         }
     }
