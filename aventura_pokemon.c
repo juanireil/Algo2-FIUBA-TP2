@@ -20,6 +20,7 @@ void destructor_pokemones(void* pokemon){
     }
     free(pokemon);
 }
+
 int comparador_pokemones(void* pokemon_1, void* pokemon_2){
     return strcmp(((pokemon_t*)pokemon_1)->nombre, ((pokemon_t*)pokemon_2)->nombre);
 }
@@ -32,7 +33,8 @@ void mostrar_menu_inicio(){
     printf("_I: Empezar la partida                          _S: Simular partida\n");
 
 }
-void* crear_personaje(){
+
+personaje_t* crear_personaje(){
     personaje_t* entrenador = malloc(sizeof(personaje_t));
     if(!entrenador){
         return NULL;
@@ -52,7 +54,6 @@ void* crear_personaje(){
     }
     
     return entrenador;
-
 }
 
 void destruir_personaje(personaje_t* personaje){
@@ -61,7 +62,7 @@ void destruir_personaje(personaje_t* personaje){
     free(personaje);
 }
 
-void* crear_pokemon(){
+pokemon_t* crear_pokemon(){
     pokemon_t* pokemon = malloc(sizeof(pokemon_t));
     if(!pokemon){
         return NULL;
@@ -75,7 +76,7 @@ void* crear_pokemon(){
     return pokemon;
 }
 
-void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
+personaje_t* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     char dato_a_guardar;
 
     personaje_t* personaje = crear_personaje();
@@ -122,6 +123,7 @@ void* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     fclose(archivo_personaje);
     return personaje;
 }
+
 void destructor_entrenadores(void* entrenador){
     if(!entrenador){
         return;
@@ -129,7 +131,8 @@ void destructor_entrenadores(void* entrenador){
     lista_destruir(((entrenador_t*)entrenador)->equipo);
     free(entrenador);
 }
-void* crear_gimnasio(){
+
+gimnasio_t* crear_gimnasio(){
     gimnasio_t* gimnasio = malloc(sizeof(gimnasio_t));
     if(!gimnasio){
         return NULL;
@@ -165,7 +168,7 @@ int comparar_gimnasios(void* gym_1, void* gym_2 ){
     return 0;
 }
 
-void* crear_entrenador(){
+entrenador_t* crear_entrenador(){
     entrenador_t* entrenador = malloc(sizeof(entrenador_t));
     if(!entrenador){
         return NULL;
@@ -181,18 +184,33 @@ void* crear_entrenador(){
     return entrenador;
 }
 
+/*
+ * Recibe el dato leído del archivo.
+ * Devólverá True si es valido (L,E,G o Ṕ), False en caso contrario.
+ */
 bool es_dato_valido(char dato_a_guardar){
     return (dato_a_guardar == LIDER || dato_a_guardar == ENTRENADOR || dato_a_guardar == GIMNASIO || dato_a_guardar == POKEMON);
 }
-
+/*
+ * Recibe un id de batalla leído del archivo.
+ * Devólverá True si es valido (entero del 1 al 5), False en caso contrario.
+ */
 bool es_id_batalla_valido(int id_batalla){
     return ((id_batalla > 1) && (id_batalla < 6));
 }
 
+/*
+ * Recibe la dificultad del gimnasio leída del archivo.
+ * Devólverá True si es valido (entero positivo), False en caso contrario.
+ */
 bool es_dificultad_valida(int dificultad){
     return dificultad > 0;
 }
 
+/*
+ * Recibe una lista de entrenadores.
+ * Devólverá true si la lista posee un lider, false en caso contrario.
+ */
 bool hay_lider(lista_t* entrenadores){
     entrenador_t* entrenador = lista_elemento_en_posicion(entrenadores, 0);
     if(!entrenador){
@@ -202,11 +220,6 @@ bool hay_lider(lista_t* entrenadores){
     return entrenador->es_lider;
 }
 
-/*
- * ver como mejorar LA FUNCION
- * ES HOOOOOOOOORRIBLE
- * ASI NO LA ENTREGO
- */
 int cargar_gimnasios(heap_t* heap_gimnasios, char nombre_gimnasio[MAX_ARCHIVO]){
     char dato_a_guardar;
     bool hay_gimnasio = false;
@@ -315,6 +328,7 @@ int cargar_gimnasios(heap_t* heap_gimnasios, char nombre_gimnasio[MAX_ARCHIVO]){
     fclose(archivo_gimnasio);
     return 1;
 }
+
 void mostrar_menu_victoria(char estado_juego){
     system("clear");
     if(estado_juego == JUGANDO){
@@ -325,9 +339,9 @@ void mostrar_menu_victoria(char estado_juego){
     }
     else{
         printf("Felicitaciones, has logrado vencer y culminar esta ardua aventura.\nA partira de ahora eres un maestro pokemon!!!\n");
-    }
-    
+    }    
 }
+
 void mostrar_menu_derrota(){
     system("clear");
     printf("Has sido derrotado, tus pokemones han sido llevados al centro pokemon más cercano.\nEligue que quieres hacer a continuación.\n");
@@ -342,30 +356,53 @@ void mostrar_menu_gimnasio(){
     printf("_C Realizar cambios en el equipo                            _B Proceder a la siguiente batalla\n");
 }
 
+/*
+ * Recibe el dato ingresado por teclado en el menú de gimnasio.
+ * Devólverá si True si es valido (C,E,G o B), False en caso contrario.
+ */
 bool ingreso_valido(char ingreso){
     return (ingreso == 'E' || ingreso == 'C' || ingreso == 'G' || ingreso == 'B');
 }
-bool mostrar_pokemones_lista(void* elemento, void* contador){
-    if(elemento && contador){
+
+/*
+ * Funcion para el iterador interno.
+ * Recibe el puntero a un pokemon y un puntero a un contador.
+ * Devólverá true siempre (es necesaria su devolucion para el iterador).
+ * Mostrará el pokemon y su informacion.
+ */
+bool mostrar_pokemones_lista(void* pokemon, void* contador){
+    if(pokemon && contador){
         (*(int*)contador)+=1;
         printf("    Pokemon N° %i\n", (*(int*)contador));
-        printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)elemento)->nombre,((pokemon_t*)elemento)->velocidad);
-        printf("    Ataque: %i\n    Defensa: %i\n",  ((pokemon_t*)elemento)->ataque,((pokemon_t*)elemento)->defensa);
-        printf("    Nivel: %i\n\n",((pokemon_t*)elemento)->nivel);
+        printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)pokemon)->nombre,((pokemon_t*)pokemon)->velocidad);
+        printf("    Ataque: %i\n    Defensa: %i\n",  ((pokemon_t*)pokemon)->ataque,((pokemon_t*)pokemon)->defensa);
+        printf("    Nivel: %i\n\n",((pokemon_t*)pokemon)->nivel);
     }
     return true;
 }
 
-bool mostrar_pokemones_arbol(void* elemento, void* contador){
-    if(elemento && contador){
+/*
+ * Funcion para el iterador interno.
+ * Recibe el puntero a un pokemon y un puntero a un contador.
+ * Devólverá false siempre (es necesaria su devolucion para el iterador).
+ * Mostrará el pokemon y su informacion siempre que este no este en el equipo.
+ */
+bool mostrar_pokemones_arbol(void* pokemon, void* contador){
+    if(pokemon && contador){
         (*(int*)contador)+=1;
-        printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)elemento)->nombre,((pokemon_t*)elemento)->velocidad);
-        printf("    Ataque: %i\n    Defensa: %i\n\n",  ((pokemon_t*)elemento)->ataque,((pokemon_t*)elemento)->defensa);
-        printf("    Nivel: %i\n\n",((pokemon_t*)elemento)->nivel);
+        if(!((pokemon_t*)pokemon)->esta_en_equipo){
+            printf("    Nombre: %s\n    Velocidad: %i\n", ((pokemon_t*)pokemon)->nombre,((pokemon_t*)pokemon)->velocidad);
+            printf("    Ataque: %i\n    Defensa: %i\n\n",  ((pokemon_t*)pokemon)->ataque,((pokemon_t*)pokemon)->defensa);
+            printf("    Nivel: %i\n\n",((pokemon_t*)pokemon)->nivel);
+        }
     }
     return false;
 }
 
+/*
+ * Recibe un personaje principal.
+ * Mostrará al personaje, su informacion y los pokemones pertenecientes a su equipo con su información.
+ */
 void mostrar_personaje(personaje_t* personaje){
     bool (*funcion)(void*, void*) = mostrar_pokemones_lista;
     int contador = 0;
@@ -377,6 +414,10 @@ void mostrar_personaje(personaje_t* personaje){
     scanf(" %c", &ingreso);
 }
 
+/*
+ * Recibe un gimnasio valido.
+ * Mostrará el gimnasio y su informacion.
+ */
 void mostrar_gimnasio(gimnasio_t* gimnasio){
     char ingreso;
     printf("Informacion del gimnasio a combatir:\n    Nombre: %s\n", gimnasio->nombre);
@@ -386,6 +427,10 @@ void mostrar_gimnasio(gimnasio_t* gimnasio){
     scanf(" %c", &ingreso);
 }
 
+/*
+ * Recibe un personaje valido.
+ * Mostrará los pokemones pertenecientes al equipo del personaje y todos los obtenidos que no esten en el equipo.
+ */
 void mostrar_pokemones(personaje_t* personaje){
     bool (*funcion_1)(void*, void*) = mostrar_pokemones_lista;
     bool (*funcion_2)(void*, void*) = mostrar_pokemones_arbol;
@@ -401,13 +446,27 @@ void mostrar_pokemones(personaje_t* personaje){
     printf("Presione algun boton para avanzar\n");
     scanf(" %c", &ingreso);
 }
+
+/*
+ * Recibe la posicion de un pokemon y la cantidad de pokemones del equipo.
+ * Devuelve true si la posicion existe en el equipo o false si no.
+ */
 bool es_pokemon_valido(size_t pokemon_a_cambiar, size_t cantidad_pokemones_equipo){
     return (pokemon_a_cambiar <= cantidad_pokemones_equipo);
 }
 
+/*
+ * Recibe el ingreso por teclado.
+ * Devuelve true si es valido(s o n) o false si no.
+ */
 bool es_ingreso_valido(char ingreso){
     return (ingreso == 's' || ingreso == 'n');
 }
+
+/*
+ * Recibe el personaje. Pedirá al usuario la posicion en el equipo del pokemon
+ * que se desea sacar. Pedirá la posicion hasta que esta sea valida.
+ */
 void pedir_pokemon_a_sacar(personaje_t* personaje, size_t* pokemon_a_cambiar){
     printf("Ingrese el numero del pokemon del equipo que desea sacar\n");
     scanf("%lui", pokemon_a_cambiar);
@@ -464,16 +523,28 @@ int modificar_equipo(personaje_t* personaje){
     destructor_pokemones(pokemon_aux);
     return 0;
 }
+
+/*
+ * Recibe el puntero a un pokemon y lo mostrará por pantalla junto a sus estadisticas.
+ */
 void mostrar_pokemones_combate(pokemon_t* pokemon){
 
     printf("    Nombre: %s\n    Velocidad: %i\n", pokemon->nombre,pokemon->velocidad);
     printf("    Ataque: %i\n    Defensa: %i\n\n",  pokemon->ataque,pokemon->defensa);
     
 }
+
+/*
+ * Recibe un ingreso. Devolverá true si es valido (n), o false si no lo es.
+ */
 bool ingreso_combate_valido(char ingreso){
     return ingreso == 'N';
 }
 
+/*
+ * Pide al usuario que ingrese ingrese para seguir con el juego. Lo repetirá hasta que el
+ * ingreso sea valido.
+ */
 void pedir_ingreso(char ingreso){
     printf("Presione N para poceder al siguiente combate\n");
     scanf(" %c", &ingreso);
@@ -508,10 +579,18 @@ void subir_nivel_pokemon(pokemon_t* pokemon){
     }
 }
 
+/*
+ * Recibe el ingreso por teclado del usuario.
+ * Devuelve true si es valido(C, R o F), false en caso contrario.
+ */
 bool ingreso_derrota_valido(char ingreso){
     return (ingreso == 'C' || ingreso == 'R' || ingreso == 'F');
 }
 
+/*
+ * Pide al usuario el ingreso por teclado.
+ * Repite la accion hasta que el ingreso realizado sea uno valido.
+ */
 void pedir_ingreso_derrota(char* ingreso){
     scanf("%c", ingreso);
     while(!ingreso_derrota_valido(*ingreso)){
@@ -520,6 +599,14 @@ void pedir_ingreso_derrota(char* ingreso){
     }
 }
 
+/*
+ * Recibe un puntero al personaje, el estado del juego y el modo en el que se esta jugando.
+ * Ofrecerá la informacion correspondiente según la situación del juego. Si el modo es simulacion
+ * solo se notificará de la derrota. Si el modo es el de jugar se ofrecerán las opciones del meníú de
+ * derrota.
+ * Devuelve -1 en caso de error 0 en caso contrario. Si el jugador decide dejar el juego ahí se pone estado juego
+ * en perdido.
+ */
 int acciones_derrota(personaje_t* personaje, char* estado_juego, char modo_de_juego){
     char ingreso = ' ';
     if(modo_de_juego == SIMULAR){
@@ -551,10 +638,18 @@ int acciones_derrota(personaje_t* personaje, char* estado_juego, char modo_de_ju
     return 0;
 }
 
+/*
+ * Recibe el ingreso por teclado del usuario.
+ * Devuelve true si es valido(C, N o T), false en caso contrario.
+ */
 bool ingreso_victoria_valido(char ingreso){
     return (ingreso == 'T' || ingreso == 'C' || ingreso == 'N');
 }
 
+/*
+ * Pide al usuario ingresar una de las opciones de victoria.
+ * Esto se repetirá hasta que lo que se ingrese sea valido.
+ */
 void pedir_ingreso_victoria(char* ingreso){
     scanf("%c", ingreso);
     while(!ingreso_victoria_valido(*ingreso)){
@@ -563,6 +658,10 @@ void pedir_ingreso_victoria(char* ingreso){
     }
 }
 
+/*
+ * Recibe un puntero al lider del gimnasio.
+ * Mostrara los pokemones de su equipo y sus estadísticas.
+ */
 void mostrar_pokemones_lider(entrenador_t* entrenador){
     bool (*funcion)(void*, void*) = mostrar_pokemones_lista;
     int contador = 0;
@@ -571,6 +670,11 @@ void mostrar_pokemones_lider(entrenador_t* entrenador){
     lista_con_cada_elemento(entrenador->equipo, funcion, &contador);
 } 
 
+/*
+ * Recibe un puntero al lider. Pedirá que se ingrese la posicion del pokemon
+ * del lider que se desea sacar del equipo.
+ * Se repetira hasta que el ingreso sea valido.
+ */
 void pedir_pokemon_lider(entrenador_t* entrenador, size_t* pokemon_a_cambiar){
     printf("Ingrese el numero del pokemon del lider que desea sacar\n");
     scanf("%lui", pokemon_a_cambiar);
@@ -580,7 +684,11 @@ void pedir_pokemon_lider(entrenador_t* entrenador, size_t* pokemon_a_cambiar){
     }
 }
 
-void* obtener_pokemon(entrenador_t* entrenador, size_t pokemon_a_cambiar){
+/*
+ * Recibe un personaje y la posicion de un pokemon de su equipo.
+ * Creará una copia del pokemon en esta posicion y delvoverá un puntero a esta copia.
+ */
+pokemon_t* obtener_pokemon(entrenador_t* entrenador, size_t pokemon_a_cambiar){
     pokemon_t* pokemon = crear_pokemon();
     pokemon_t* pokemon_lider = lista_elemento_en_posicion(entrenador->equipo, pokemon_a_cambiar);
 
@@ -592,6 +700,14 @@ void* obtener_pokemon(entrenador_t* entrenador, size_t pokemon_a_cambiar){
     return pokemon;
 }
 
+/*
+ * Recibe un puntero al personaje, un puntero al lider y el estado del juego y el modo en el que se esta jugando.
+ * Ofrecerá la informacion correspondiente según la situación del juego. Si el modo es simulacion
+ * solo se notificará de la victoria en caso de haber ganado el juego.
+ * Si el modo es el de jugar se ofrecerán las opciones del menu de victoria en caso de no haber ganado el
+ * juego todavía. Si ya se ganó se establecerá el estado del juego en ganado.
+ * Devuelve -1 en caso de error 1 en caso contrario.
+ */
 int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* entrenador, char modo_de_juego){
     char ingreso = ' ';
     size_t posicion_pokemon_lider = 0;
@@ -626,7 +742,6 @@ int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* 
                 printf("Ha ocurrido un error al sacar un pokemon del lider, lo sentimos reintentelo\n");
                 return ERROR;
             }
-
         }
         if(ingreso == 'N'){
             return 1;

@@ -33,11 +33,17 @@ void pedir_nombre_archivo(char nombre_archivo[MAX_NOMBRE_ARCHIVO], char ingreso_
     }    
 }
 
-void inicializar_juego(juego_t* juego){
+int inicializar_juego(juego_t* juego){
     juego->estado_juego  = JUGANDO;
+    
     juego->gimnasios = crear_heap(comparar_gimnasios, destructor_de_gimnasios);
+    if(!juego->gimnasios){
+        return ERROR;
+    }
+
     juego->personaje = NULL;
     juego->cantidad_gimnasios = 0;
+    return 0;
 
 }
 
@@ -46,7 +52,10 @@ int main(){
     char ingreso_inicio;
     char nombre_archivo[MAX_NOMBRE_ARCHIVO];
 
-    inicializar_juego(&juego);
+    if(inicializar_juego(&juego) == ERROR){
+        printf("Ha ocurrido un error\n");
+        return ERROR;
+    }
     while (juego.estado_juego == JUGANDO){    
         mostrar_menu_inicio();
         
