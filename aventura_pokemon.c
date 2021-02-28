@@ -76,6 +76,9 @@ pokemon_t* crear_pokemon(){
     return pokemon;
 }
 
+bool es_leido_valido(char dato_leido){
+    return (dato_leido == POKEMON || dato_leido == ENTRENADOR);
+}
 personaje_t* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     char dato_a_guardar;
 
@@ -103,7 +106,7 @@ personaje_t* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
         fclose(archivo_personaje);
         return NULL;
     }
-    while (leidos == 1){
+    while (leidos == 1 && es_leido_valido(dato_a_guardar)){
         if(dato_a_guardar == ENTRENADOR){
             fscanf(archivo_personaje, "%50[^\n]\n", personaje->nombre);
         }
@@ -121,6 +124,18 @@ personaje_t* cargar_personaje(char nombre_archivo[MAX_ARCHIVO]){
     }
     free(pokemon);
     fclose(archivo_personaje);
+    if(!es_leido_valido(dato_a_guardar)){
+        destruir_personaje(personaje);
+        printf("Archivo invalido no puede ser cargado");
+        sleep(1);
+        return NULL;
+    }
+    if(lista_vacia(personaje->equipo)){
+        destruir_personaje(personaje);
+        printf("Personaje sin pokemones no se puede cargar");
+        sleep(1);
+        return NULL;
+    }
     return personaje;
 }
 
@@ -303,10 +318,11 @@ int cargar_gimnasios(heap_t* heap_gimnasios, char nombre_gimnasio[MAX_ARCHIVO]){
         }
         if(dato_a_guardar == POKEMON){
             fscanf(archivo_gimnasio, FORMATO_POKEMON, (*pokemon).nombre, &((*pokemon).ataque), &((*pokemon).defensa), &((*pokemon).velocidad));
-            lista_insertar(entrenador->equipo,pokemon);
-            pokemon->esta_en_equipo = true;    
-            
-            pokemon = crear_pokemon();
+            if(entrenador->equipo->cantidad < 6){
+                lista_insertar(entrenador->equipo,pokemon);    
+                pokemon->esta_en_equipo = true;
+                pokemon = crear_pokemon();
+            }
         }
 
         leidos = fscanf(archivo_gimnasio, "%c;", &dato_a_guardar);
@@ -329,11 +345,13 @@ int cargar_gimnasios(heap_t* heap_gimnasios, char nombre_gimnasio[MAX_ARCHIVO]){
     return 1;
 }
 
-void mostrar_menu_victoria(char estado_juego){
+void mostrar_menu_victoria(char estado_juego, bool saco_pokemon_lider){
     system("clear");
     if(estado_juego == JUGANDO){
         printf("Felicitaciones!!! \n Has vencido este ginasio.\n");
-        printf("_T Toma un pokemon del lider e incorporalo a tu equipo\n");
+        if(saco_pokemon_lider == false){
+            printf("_T Toma un pokemon del lider e incorporalo a tu equipo\n");
+        }
         printf("_C Realizar cambios en el equipo\n");
         printf("_N Siguiente Gimnasio\n");
     }
@@ -709,48 +727,52 @@ pokemon_t* obtener_pokemon(entrenador_t* entrenador, size_t pokemon_a_cambiar){
  * Devuelve -1 en caso de error 1 en caso contrario.
  */
 int acciones_victoria(personaje_t* personaje, char* estado_juego, entrenador_t* entrenador, char modo_de_juego){
+    bool saco_pokemon_lider = false;
     char ingreso = ' ';
     size_t posicion_pokemon_lider = 0;
     pokemon_t* pokemon;
     if(modo_de_juego == SIMULAR){
-        if(*estado_juego == GANADO){
-            mostrar_menu_victoria(*estado_juego);
-            ingreso = 'N';
-        }
-    }
-    else{
-        mostrar_menu_victoria(*estado_juego);
-    }
-    if(*estado_juego == JUGANDO){
-        if(modo_de_juego == JUGAR){
-            pedir_ingreso_victoria(&ingreso);
-        }
-        if(ingreso == 'C'){
-            system("clear");
-            if(modificar_equipo(personaje) == ERROR){
-                destructor_entrenadores(entrenador);
-                printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
-                return ERROR;
-            }
-        }
-        if(ingreso == 'T'){
-            mostrar_pokemones_lider(entrenador);
-            pedir_pokemon_lider(entrenador, &posicion_pokemon_lider);
-            pokemon = obtener_pokemon(entrenador, posicion_pokemon_lider-1);
-            destructor_entrenadores(entrenador);
-            if(arbol_insertar(personaje->pokemones, pokemon) == ERROR){
-                printf("Ha ocurrido un error al sacar un pokemon del lider, lo sentimos reintentelo\n");
-                return ERROR;
-            }
-        }
-        if(ingreso == 'N'){
-            return 1;
-        }
-    }
-    else{
         destructor_entrenadores(entrenador);
-        printf("Presione cualquier boton para terminar su partida\n");
-        scanf(" %c", &ingreso);
+        if(*estado_juego == GANADO){
+            mostrar_menu_victoria(*estado_juego, saco_pokemon_lider);
+            printf("Presione cualquier boton para terminar su partida\n");
+            scanf(" %c", &ingreso);
+        }
+    }
+    else if(*estado_juego == JUGANDO){
+        mostrar_menu_victoria(*estado_juego, saco_pokemon_lider);
+        if(modo_de_juego == JUGAR){
+
+            while(ingreso != 'N'){
+                mostrar_menu_victoria(*estado_juego, saco_pokemon_lider);
+                pedir_ingreso_victoria(&ingreso);
+                if(ingreso == 'C'){
+                    system("clear");
+                    if(modificar_equipo(personaje) == ERROR){
+                        destructor_entrenadores(entrenador);
+                        printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
+                        return ERROR;
+                    }
+                }
+                if(ingreso == 'T' && saco_pokemon_lider == false){
+                    saco_pokemon_lider = true;
+                    mostrar_pokemones_lider(entrenador);
+                    pedir_pokemon_lider(entrenador, &posicion_pokemon_lider);
+                    pokemon = obtener_pokemon(entrenador, posicion_pokemon_lider-1);
+                    destructor_entrenadores(entrenador);
+                    if(arbol_insertar(personaje->pokemones, pokemon) == ERROR){
+                        printf("Ha ocurrido un error al sacar un pokemon del lider, lo sentimos reintentelo\n");
+                        return ERROR;
+                    }
+                    printf("Pokemon agredo a los obtenidos correctamente\n");
+                    sleep(1);
+                }
+                if(ingreso == 'N'){
+                    printf("Preparate para combatir contra el siguiente gimnasio\n");
+                    sleep(1);
+                }
+            }
+        }
     }
     return 1;
 }

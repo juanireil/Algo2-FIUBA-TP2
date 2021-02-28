@@ -163,7 +163,7 @@ void mostrar_menu_inicio();
 void mostrar_menu_gimnasio();
 
 /*
- * Recibirá los punteros a dos pokemones y el resultado de su pelea.
+ * Recibirá los punteros a dos pokemones y el resultado de su
  * Mostrará el menú de batalla.
  * En este verá los resultados de la última batalla y los 2 pokemones que la realizaron.
  * 
@@ -178,7 +178,7 @@ void mostrar_menu_batalla(pokemon_t* pokemon_personaje, pokemon_t* pokemon_enemi
  * distintas posibilidades. Robar un pokemon del lider,cambiar los pokemones del equipo
  * o avanzar a la siguiente batalla de gimnasio.
 */
-void mostrar_menu_victoria(char estado_juego);
+void mostrar_menu_victoria(char estado_juego, bool saco_pokemon_lider);
 
 /*
  * Mostrará el menú de derrota.

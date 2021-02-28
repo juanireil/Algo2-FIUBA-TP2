@@ -31,11 +31,12 @@ void probar_funciones_batalla(){
 
 void probar_cargar_personaje(){
     personaje_t* personaje = NULL;
-    pa2m_afirmar((personaje = cargar_personaje("gimnasio_brockas.txt")) == NULL, "Archivo erroneo no se crea el personaje");
+    pa2m_afirmar((personaje = cargar_personaje("gimnasio_brock.txt")) == NULL, "Archivo erroneo no se crea el personaje");
+    pa2m_afirmar((personaje = cargar_personaje("personaje_sin_pokes.txt")) == NULL, "Personaje sin pokemones no puede ser cargado");
     pa2m_afirmar((personaje = cargar_personaje("personaje_principal.txt")) != NULL, "Personaje creado correctamente");
     pa2m_afirmar(strcmp(personaje->nombre, "Ash") == 0, "Nombre del personaje es el correcto");
     pa2m_afirmar(personaje->equipo->cantidad == 6, "Equipo completo con 6 pokemones cargado");
-
+    
     arbol_destruir(personaje->pokemones);
     lista_destruir(personaje->equipo);
     free(personaje);
