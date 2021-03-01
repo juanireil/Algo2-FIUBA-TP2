@@ -39,11 +39,13 @@ Para esta implementación se opto por usar las siguientes estructuras:
 
 
 Se opto por implementar todos los equipos de pokemones como listas. Esto es debido a que en el caso del personaje principal es necesario poder cambiar cualquier pokemon del equipo y mostrarlos a todos. Estas acciones requieren recorrer la lista cosa que los imposibilita de ser usados como pila o cola.
-En el caso de los entrenador restantes tambien se usa la lista por que está la posibilidad de tomar un pokemon del lider. Para esto utilizar una cola o pila nos limitará mucho.
+En el caso de los entrenador restantes tambien se usa la lista por que está la posibilidad de tomar un pokemon del lider. Para esto utilizar una cola o pila nos limitará mucho. Además usar una lista nos permite utilizar los iteradores interno y externo para recorrerla y tener lo necesario.
 
 Los demas pokemones que posee el personaje principal fueron guardados en un arbol de busqueda binario. Se eligió este ya que puede ser necesario acceder a cualquiera de estos pokemones y recorrerlo. Esto ya limita a usar abb o lista. Se opto por la lista ya que pueden haber muchos pokemones y en caso de que el arbol no se deforme a lista la complejidad algoritmica de buscar un pokemon en el arbol es menor que en la lista volviendolo así mas eficiente.
 
 En los gimnasios, se posee una pila de los entrenadores que lo componen. Fue elegida la pila debido a que los entrenadores se leen del archivo y el primero en ser leído es el primero en agregarse y el ultimo en enfrentarse. Siendo este el funcionamiento de la pila volviendolo así el ideal en este caso.
+
+Los gimnasiosios son guardados en un heap minimal. Esto se debe a que solo necesitamos tener siempre el de menor dificultad. Luego sacamos ese y necesitamos el nuevo de menor dificultad. Usando esta implementacion no hay que buscarlo ya que siempre será el que este en la raiz.
 
 Por último se posee una estructura _juego_t con el fin de encapsular mejor el juego.
 

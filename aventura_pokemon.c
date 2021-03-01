@@ -13,7 +13,6 @@
 static const char JUGAR = 'I', SIMULAR = 'S';
 const char GIMNASIO = 'G', LIDER = 'L', POKEMON = 'P', ENTRENADOR = 'E';
 
-
 void destructor_pokemones(void* pokemon){
     if(!pokemon){
         return;
@@ -643,6 +642,7 @@ int acciones_derrota(personaje_t* personaje, char* estado_juego, char modo_de_ju
             printf("Ha ocurrido un error al modificar el equipo, lo sentimos reintentelo\n");
             return ERROR;
         }
+        acciones_derrota(personaje, estado_juego, modo_de_juego);
     }
     if(ingreso == 'R'){
         printf("Volveras al menu de gimnasio para reintentarlo desde el entrenador que lo dejaste\n");
